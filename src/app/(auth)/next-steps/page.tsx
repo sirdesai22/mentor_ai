@@ -62,6 +62,8 @@ export default function NextStepsPage() {
         // Create new user if doesn't exist
         await db.insert(users).values({
           email,
+          name: user.fullName,
+          username: user.username,
           education: formData.education,
           occupation: formData.occupation,
           goals: formData.goals,

@@ -22,10 +22,10 @@ export default function SignInPage() {
         {/* Clerk SignIn Component */}
         {/* <div className="bg-gray-800 shadow-2xl rounded-xl p-8 sm:p-10"> */}
           <SignIn
-            routing="path"
             path="/signin"
+            routing="path"
             signUpUrl="/signup"
-            redirectUrl="/dashboard"
+            fallbackRedirectUrl="/dashboard"
           />
         {/* </div> */}
 

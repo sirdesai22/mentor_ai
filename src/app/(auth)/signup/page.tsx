@@ -23,7 +23,7 @@ export default function SignupPage() {
         <SignUp 
           path="/signup" 
           routing="path" 
-          signInUrl="/login"
+          signInUrl="/signin"
           fallbackRedirectUrl="/next-steps" // Optional: redirect after successful sign-up
         />
 
