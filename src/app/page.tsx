@@ -20,13 +20,13 @@ import {
   X
 } from 'lucide-react';
 import { useState } from 'react';
-import Navbar from './components/landing_page/Navbar';
-import HeroSection from './components/landing_page/Hero';
-import HowItWorksSection from './components/landing_page/HowItWorks';
-import FeaturesSection from './components/landing_page/Features';
-import ShowcaseSection from './components/landing_page/Showcase';
-import CallToActionSection from './components/landing_page/CallToAction';
-import Footer from './components/landing_page/Footer';
+import Navbar from '../components/landing_page/Navbar';
+import HeroSection from '../components/landing_page/Hero';
+import HowItWorksSection from '../components/landing_page/HowItWorks';
+import FeaturesSection from '../components/landing_page/Features';
+import ShowcaseSection from '../components/landing_page/Showcase';
+import CallToActionSection from '../components/landing_page/CallToAction';
+import Footer from '../components/landing_page/Footer';
 
 // Main Page Component
 export default function MentorAILandingPage() {
