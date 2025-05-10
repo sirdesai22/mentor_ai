@@ -30,7 +30,7 @@ export default function SignupPage() {
         {/* Login Link */}
         <div className="mt-8 text-center text-sm text-gray-400">
           Already have an account?{' '}
-          <Link href="/login" passHref>
+          <Link href="/signin" passHref>
             <p className="font-medium text-blue-500 hover:text-blue-400 hover:underline">
               Sign In
             </p>

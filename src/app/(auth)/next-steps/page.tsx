@@ -44,20 +44,59 @@ export default function NextStepsPage() {
     
     setIsLoading(true);
     try {
-      await db
-        .update(users)
-        .set({
+      const email = user.primaryEmailAddress?.emailAddress;
+      if (!email) {
+        throw new Error('No email address found');
+      }
+
+      // First check if user exists
+      const existingUser = await db
+        .select()
+        .from(users)
+        .where(eq(users.email, email))
+        .limit(1);
+
+        console.log(existingUser)
+
+      if (existingUser.length === 0) {
+        // Create new user if doesn't exist
+        await db.insert(users).values({
+          email,
           education: formData.education,
           occupation: formData.occupation,
           goals: formData.goals,
           interests: formData.interests,
-        })
-        .where(eq(users.email, user.primaryEmailAddress?.emailAddress || ''));
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+        console.log('User data saved successfully');
+      } else {
+        // Update existing user
+        const result = await db
+          .update(users)
+          .set({
+            education: formData.education,
+            occupation: formData.occupation,
+            goals: formData.goals,
+            interests: formData.interests,
+            updatedAt: new Date(),
+          })
+          .where(eq(users.email, email))
+          .returning();
+
+        if (result.length === 0) {
+          throw new Error('Failed to update user data');
+        }
+      }
+
+      console.log('User data saved successfully');
 
       // Redirect to dashboard
       router.push('/dashboard');
     } catch (error) {
       console.error('Error saving user data:', error);
+      // You might want to show an error message to the user here
+      alert('Failed to save your information. Please try again.');
     } finally {
       setIsLoading(false);
     }
