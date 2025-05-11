@@ -17,10 +17,12 @@ import {
   Target,
   Sparkles, // For MENTOR AI logo
   Menu, // For mobile menu toggle
-  X // For mobile menu toggle
+  X, // For mobile menu toggle
+  Plus,
+  PlusSquare
 } from 'lucide-react';
 import { SignOutButton, useUser } from '@clerk/nextjs';
-
+import { useRouter } from 'next/navigation';
 // Sidebar Navigation Links
 const sidebarNavLinks = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, current: true },
@@ -33,6 +35,7 @@ const sidebarNavLinks = [
 export default function DashboardPage() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { user } = useUser();
+  const router = useRouter();
 
   const userData = {
     name: user?.fullName || 'User',
@@ -147,6 +150,9 @@ export default function DashboardPage() {
 
                 {/* Profile & Notifications */}
                 <div className="flex items-center space-x-4">
+                  <button onClick={() => router.push('/dashboard/create-skill')} className="flex items-center bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                    New Skill <Plus className="h-4 w-4 ml-2" />
+                  </button>
                   <button className="p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
                     <span className="sr-only">View notifications</span>
                     <Bell className="h-6 w-6" aria-hidden="true" />
