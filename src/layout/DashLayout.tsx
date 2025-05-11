@@ -1,5 +1,5 @@
-import { SignOutButton } from '@clerk/nextjs'
-import { Award, BookOpen, LayoutDashboard, LogOut, Settings, Sparkles, X } from 'lucide-react'
+import { SignOutButton, useUser } from '@clerk/nextjs'
+import { Award, Bell, BookOpen, ChevronDown, LayoutDashboard, LogOut, Menu, Plus, Search, Settings, Sparkles, X } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
@@ -16,9 +16,34 @@ const sidebarNavLinks = [
     { name: 'Settings', href: '/dashboard/settings', icon: Settings, current: false },
   ];
 
+
+  // UserAvatar Component (reused from dashboard)
+const UserAvatar = ({ name, avatarUrl }: { name: string, avatarUrl: string }) => {
+    if (avatarUrl) {
+      return <img className="h-8 w-8 rounded-full" src={avatarUrl} alt={name} />;
+    }
+    const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
+    return (
+      <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-gray-600">
+        <span className="text-xs font-medium leading-none text-white">{initials}</span>
+      </span>
+    );
+  };
+
 const DashLayout = ({ children }: Props) => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const router = useRouter();
+  const { user } = useUser();
+
+  const userData = {
+    name: user?.fullName || 'User',
+    email: user?.emailAddresses[0].emailAddress || 'User Email',
+    username: user?.username || 'User Username',
+    avatarUrl: user?.imageUrl || '',
+    currentSkill: 'Python Programming',
+    currentLevel: 5,
+    progress: 65, // Percentage
+  };
 
   return (
     <div className="font-inter bg-gray-900 text-white min-h-screen flex antialiased">
@@ -69,7 +94,51 @@ const DashLayout = ({ children }: Props) => {
         </aside>
 
         {/* Main Content Area */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Top Bar (Reused from dashboard structure) */}
+          <header className="bg-gray-800/80 backdrop-blur-md shadow-md md:shadow-none sticky top-0 z-30">
+            <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex items-center justify-between h-20">
+                <button onClick={() => setMobileSidebarOpen(true)} className="md:hidden text-gray-300 hover:text-white p-2 -ml-2" aria-label="Open sidebar">
+                  <Menu className="h-6 w-6" />
+                </button>
+                <div className="hidden md:flex flex-1 max-w-xs"> {/* Search can be kept or removed */}
+                  <div className="relative w-full text-gray-400 focus-within:text-gray-200">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <Search className="h-5 w-5" aria-hidden="true" />
+                    </div>
+                    <input
+                      id="search-field"
+                      className="block w-full h-full pl-10 pr-3 py-2 border-transparent bg-gray-700 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:placeholder-gray-300 sm:text-sm rounded-md"
+                      placeholder="Search..."
+                      type="search"
+                      name="search"
+                    />
+                  </div>
+                </div>
+                <div className="md:hidden flex-1"></div> {/* Spacer for mobile */}
+                <div className="flex items-center space-x-4">
+                    <button onClick={() => router.push('/dashboard/create-skill')} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200">
+                        New Skill <Plus className="h-6 w-6" aria-hidden="true" />
+                    </button>
+                  <button className="p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+                    <Bell className="h-6 w-6" aria-hidden="true" />
+                  </button>
+                  <div className="relative">
+                    <button className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+                      <UserAvatar name={userData?.name || 'User'} avatarUrl={userData?.avatarUrl || ''} />
+                      <span className="hidden ml-2 text-sm font-medium text-gray-300 lg:block">{userData?.name || 'User'}</span>
+                      <ChevronDown className="hidden ml-1 h-4 w-4 text-gray-400 lg:block" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          {/* Page Content */}
         {children}
+        </div>
       </div>
   )
 }
