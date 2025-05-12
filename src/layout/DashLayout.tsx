@@ -11,7 +11,7 @@ type Props = {
 // Sidebar Navigation Links
 const sidebarNavLinks = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, current: true },
-    { name: 'My Skills', href: '/dashboard/skills', icon: BookOpen, current: false },
+    { name: 'My Games', href: '/dashboard/games', icon: BookOpen, current: false },
     { name: 'Achievements', href: '/dashboard/achievements', icon: Award, current: false },
     { name: 'Settings', href: '/dashboard/settings', icon: Settings, current: false },
   ];
