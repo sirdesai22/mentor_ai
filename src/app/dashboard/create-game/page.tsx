@@ -21,70 +21,33 @@ import {
   Loader2, // For loading states
   PlayCircle
 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import DashLayout from '@/layout/DashLayout';
-
-// Placeholder User Data (can be fetched from context or props in a real app)
-const userData = {
-  name: 'Alex Johnson',
-  avatarUrl: '', // Optional: URL to user's avatar image
-};
-
-// Sidebar Navigation Links (adjust 'current' based on actual routing)
-const sidebarNavLinks = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, current: false },
-  { name: 'My Skills', href: '/dashboard/skills', icon: BookOpen, current: false },
-  { name: 'Achievements', href: '/dashboard/achievements', icon: Award, current: false },
-  { name: 'Settings', href: '/dashboard/settings', icon: Settings, current: false },
-];
 
 // Dummy MCQ data
 const dummyMCQs = [
   {
     id: 1,
-    question: "What is the primary advantage of using a declarative programming paradigm?",
-    options: ["More control over program flow", "Easier to reason about state", "Faster execution speed", "Simpler syntax for loops"],
-    answer: "Easier to reason about state",
+    question: "What is your level of experience with this skill?",
+    options: ["I'm a beginner 🐣", "I have some knowledge 📘", "I'm an expert 🧠", "I'm a master 🏆"],
   },
   {
     id: 2,
-    question: "Which of these is a dynamically-typed language?",
-    options: ["Java", "C++", "Python", "TypeScript"],
-    answer: "Python",
+    question: "What is your preferred learning style?",
+    options: ["Watching videos 🎥", "Reading articles 📚", "Practicing questions ✍️", "Building projects 🛠️"],
   },
   {
     id: 3,
-    question: "What does 'API' stand for in software development?",
-    options: ["Advanced Program Interaction", "Application Programming Interface", "Automated Process Integration", "Applied Protocol Instance"],
-    answer: "Application Programming Interface",
+    question: "How much time can you dedicate to learning this skill?",
+    options: ["15 minutes/day ⏱️", "30 minutes/day ⌛", "1 hour/day 🕒", "2+ hours/day 🕓"],
   }
 ];
 
-// UserAvatar Component (reused from dashboard)
-const UserAvatar = ({ name, avatarUrl }: { name: string, avatarUrl: string }) => {
-  if (avatarUrl) {
-    return <img className="h-8 w-8 rounded-full" src={avatarUrl} alt={name} />;
-  }
-  const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
-  return (
-    <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-gray-600">
-      <span className="text-xs font-medium leading-none text-white">{initials}</span>
-    </span>
-  );
-};
-
 export default function NewSkillPage() {
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [skillInput, setSkillInput] = useState('');
   const [pageState, setPageState] = useState('input'); // 'input', 'mcq', 'game_generation', 'game_ready'
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedAnswers, setSelectedAnswers] = useState({});
-  const [showResults, setShowResults] = useState(false);
-  const handleLogout = () => {
-    console.log('User logged out');
-    alert('Logout functionality placeholder.');
-  };
-
+  const [selectedAnswers, setSelectedAnswers] = useState<Record<number, string>>({});
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const handleSkillSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!skillInput.trim()) {
@@ -104,14 +67,12 @@ export default function NewSkillPage() {
     setSelectedAnswers(prev => ({ ...prev, [questionId]: option }));
   };
 
-  const handleSubmitMCQs = () => {
-    setIsLoading(true);
-    setShowResults(true); // Show correct/incorrect answers
-    // Simulate result processing
-    setTimeout(() => {
+  const handleNextQuestion = () => {
+    if (currentQuestionIndex < dummyMCQs.length - 1) {
+      setCurrentQuestionIndex(prev => prev + 1);
+    } else {
       setPageState('game_generation');
-      setIsLoading(false);
-    }, 2500);
+    }
   };
   
   const handleGenerateGame = () => {
@@ -121,6 +82,10 @@ export default function NewSkillPage() {
         setPageState('game_ready');
         setIsLoading(false);
     }, 3000);
+    // TODO: Add game generation logic
+
+    // TODO: Add game to DB
+    
   };
 
 
@@ -165,64 +130,46 @@ export default function NewSkillPage() {
         );
 
       case 'mcq':
+        const currentMCQ = dummyMCQs[currentQuestionIndex];
         return (
           <div className="bg-gray-800 shadow-xl rounded-xl p-6 md:p-8 max-w-3xl mx-auto">
             <div className="flex items-center mb-6">
               <HelpCircle className="h-8 w-8 text-green-400 mr-3" />
-              <h2 className="text-2xl font-semibold">Knowledge Check for: <span className="text-green-400">{skillInput}</span></h2>
+              <h2 className="text-2xl font-semibold">Tell us about your skill: <span className="text-green-400">{skillInput}</span></h2>
             </div>
             <p className="text-gray-400 mb-6">
-              Let's see what you already know! Answer these questions to help us personalize your game.
+              Answer this question to help us personalize your game.
             </p>
-            <div className="space-y-6">
-              {dummyMCQs.map((mcq) => (
-                <div key={mcq.id} className="bg-gray-700 p-4 rounded-lg">
-                  <p className="font-medium text-gray-200 mb-3">{mcq.id}. {mcq.question}</p>
-                  <div className="space-y-2">
-                    {mcq.options.map((option) => {
-                      const isSelected = selectedAnswers[mcq.id] === option;
-                      let optionClass = "bg-gray-600 hover:bg-gray-500";
-                      if (showResults) {
-                        if (option === mcq.answer) optionClass = "bg-green-500/50 ring-2 ring-green-400";
-                        else if (isSelected && option !== mcq.answer) optionClass = "bg-red-500/50 ring-2 ring-red-400";
-                      } else if (isSelected) {
-                        optionClass = "bg-blue-500";
-                      }
-                      return (
-                        <button
-                          key={option}
-                          onClick={() => !showResults && handleAnswerSelect(mcq.id, option)}
-                          disabled={showResults || isLoading}
-                          className={`w-full text-left p-2.5 rounded-md transition-all text-sm ${optionClass} disabled:opacity-70 disabled:cursor-not-allowed`}
-                        >
-                          {option}
-                          {showResults && option === mcq.answer && <CheckCircle className="inline-block ml-2 h-4 w-4 text-green-300" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))}
+            <div className="grid grid-cols-2 gap-4">
+              {currentMCQ.options.map((option, index) => {
+                const isSelected = selectedAnswers[currentMCQ.id] === option;
+                let optionClass = "bg-gray-600 hover:bg-gray-500";
+                optionClass = isSelected ? "bg-blue-500" : optionClass;
+                return (
+                  <button
+                    key={option}
+                    onClick={() => handleAnswerSelect(currentMCQ.id, option)}
+                    disabled={isLoading}
+                    className={`flex items-center justify-center p-4 rounded-lg transition-all text-lg ${optionClass} disabled:opacity-70 disabled:cursor-not-allowed`}
+                  >
+                   {option}
+                  </button>
+                );
+              })}
             </div>
             <button
-              onClick={handleSubmitMCQs}
-              disabled={Object.keys(selectedAnswers).length < dummyMCQs.length || isLoading || showResults}
+              onClick={handleNextQuestion}
+              disabled={selectedAnswers[currentMCQ.id] === undefined || isLoading}
               className="mt-8 w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-green-500 transition-colors duration-300 disabled:opacity-60"
             >
-              {isLoading && !showResults ? (
+              {isLoading ? (
                  <>
                     <Loader2 className="animate-spin mr-2 h-5 w-5" /> Submitting...
                   </>
-              ) : showResults && isLoading ? (
-                 <>
-                    <Loader2 className="animate-spin mr-2 h-5 w-5" /> Processing...
-                  </>
-              ) : showResults ? (
-                <>
-                    Proceed to Game Generation <ArrowRight className="ml-2 h-5 w-5" />
-                </>
               ) : (
-                "Submit Answers"
+                 <>
+                    Next <ArrowRight className="ml-2 h-5 w-5" />
+                  </>
               )}
             </button>
           </div>
@@ -247,7 +194,7 @@ export default function NewSkillPage() {
                   </>
                 ) : (
                   <>
-                    Click to Finalize Game <Sparkles className="ml-2 h-5 w-5" />
+                    Click to Finalize Game for 10 GP <Sparkles className="ml-2 h-5 w-5" />
                   </>
                 )}
               </button>
@@ -270,7 +217,7 @@ export default function NewSkillPage() {
                 Start Learning Game <PlayCircle className="ml-2 h-5 w-5" />
             </button>
              <button
-                onClick={() => { setPageState('input'); setSkillInput(''); setSelectedAnswers({}); setShowResults(false); }}
+                onClick={() => { setPageState('input'); setSkillInput(''); setSelectedAnswers({}); }}
                 className="mt-4 w-full sm:w-auto flex justify-center items-center mx-auto py-2 px-6 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
               >
                 Learn Another Skill

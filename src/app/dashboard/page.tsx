@@ -24,25 +24,16 @@ import {
 import { SignOutButton, useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import DashLayout from '@/layout/DashLayout';
-import { users } from '@/lib/db/schema';
+import { games, users } from '@/lib/db/schema';
 import { db } from '@/lib/db';
 import { eq } from 'drizzle-orm';
 
-// Sidebar Navigation Links
-const sidebarNavLinks = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, current: true },
-  { name: 'My Skills', href: '/dashboard/skills', icon: BookOpen, current: false },
-  { name: 'Achievements', href: '/dashboard/achievements', icon: Award, current: false },
-  { name: 'Settings', href: '/dashboard/settings', icon: Settings, current: false },
-];
-
 // Main Dashboard Component
 export default function DashboardPage() {
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { user } = useUser();
   const router = useRouter();
   const [userData, setUserData] = useState<any>(null);
-
+  const [gamesData, setGamesData] = useState<any>(null);
   useEffect(() => {
     const fetchUserData = async () => {
       const userDataDB = await db.query.users.findFirst({
@@ -51,42 +42,17 @@ export default function DashboardPage() {
       setUserData(userDataDB);
       console.log(userDataDB)
     };
+    const fetchGamesData = async () => {
+      const gamesDataDB = await db.query.games.findMany({
+        where: eq(games.userId, userData?.id || ''),
+      });
+      setGamesData(gamesDataDB);
+    };
     if (user) {
       fetchUserData();
+      fetchGamesData();
     }
   }, [user]);
-  
-  // const userData = {
-  //   name: user?.fullName || 'User',
-  //   email: user?.emailAddresses[0].emailAddress || 'User Email',
-  //   username: user?.username || 'User Username',
-    
-    // avatarUrl: user?.imageUrl || '',
-    // currentSkill: 'Python Programming',
-    // currentLevel: 5,
-    // progress: 65, // Percentage
-  //   id: uuid('id').primaryKey().defaultRandom(),
-  // email: text('email').notNull().unique(),
-  // name: text('name'),
-  // username: text('username'),
-  // education: text('education'),
-  // occupation: text('occupation'),
-  // goals: text('goals'),
-  // interests: jsonb('interests').$type<string[]>(),
-  // };
-
-  const UserAvatar = ({ name, avatarUrl }: { name: string, avatarUrl: string }) => {
-    if (avatarUrl) {
-      return <img className="h-8 w-8 rounded-full" src={avatarUrl} alt={name} />;
-    }
-    // Fallback to initials or a generic icon if no avatar URL
-    const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
-    return (
-      <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-gray-600">
-        <span className="text-xs font-medium leading-none text-white">{initials}</span>
-      </span>
-    );
-  };
 
   if (!user || !userData) {
     return <div className='flex justify-center items-center h-screen'>Loading...</div>;

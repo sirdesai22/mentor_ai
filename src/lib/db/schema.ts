@@ -13,17 +13,17 @@ export const users = pgTable('users', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 }) 
 
-export const topics = pgTable("topics", {
+export const games = pgTable("games", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").references(() => users.id),
   name: text("name").notNull(),
-  goalDeadline: date("goal_deadline"),
+  description: text("description"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const levels = pgTable("levels", {
   id: uuid("id").primaryKey().defaultRandom(),
-  topicId: uuid("topic_id").references(() => topics.id),
+  gameId: uuid("game_id").references(() => games.id),
   levelNumber: integer("level_number"),
   title: text("title"),
   subTopic: text("sub_topic"),
