@@ -41,7 +41,7 @@ const Navbar = () => {
             {/* Desktop CTA */}
             <div className="hidden md:block">
               <a
-                href="/signin"
+                href="/login"
                 className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center"
               >
                 Sign Up <ArrowRight className="ml-2 h-5 w-5" />
@@ -78,7 +78,7 @@ const Navbar = () => {
             </div>
             <div className="pb-3 px-2">
                <a
-                href="/signin"
+                href="/login"
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
               >

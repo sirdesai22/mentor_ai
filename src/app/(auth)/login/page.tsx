@@ -22,9 +22,9 @@ export default function SignInPage() {
         {/* Clerk SignIn Component */}
         {/* <div className="bg-gray-800 shadow-2xl rounded-xl p-8 sm:p-10"> */}
           <SignIn
-            path="/signin"
+            path="/login"
             routing="path"
-            signUpUrl="/signup"
+            signUpUrl="/register"
             fallbackRedirectUrl="/dashboard"
           />
         {/* </div> */}
@@ -32,7 +32,7 @@ export default function SignInPage() {
         {/* Sign Up Link */}
         <div className="mt-8 text-center text-sm text-gray-400">
           Don&apos;t have an account?{' '}
-          <Link href="/signup" passHref>
+          <Link href="/register" passHref>
             <p className="font-medium text-blue-500 hover:text-blue-400 hover:underline">
               Sign Up Now
             </p>

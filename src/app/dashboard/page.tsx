@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   LayoutDashboard,
   BookOpen,
@@ -24,6 +24,10 @@ import {
 import { SignOutButton, useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import DashLayout from '@/layout/DashLayout';
+import { users } from '@/lib/db/schema';
+import { db } from '@/lib/db';
+import { eq } from 'drizzle-orm';
+
 // Sidebar Navigation Links
 const sidebarNavLinks = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, current: true },
@@ -37,16 +41,39 @@ export default function DashboardPage() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { user } = useUser();
   const router = useRouter();
+  const [userData, setUserData] = useState<any>(null);
 
-  const userData = {
-    name: user?.fullName || 'User',
-    email: user?.emailAddresses[0].emailAddress || 'User Email',
-    username: user?.username || 'User Username',
-    avatarUrl: user?.imageUrl || '',
-    currentSkill: 'Python Programming',
-    currentLevel: 5,
-    progress: 65, // Percentage
-  };
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const userDataDB = await db.query.users.findFirst({
+        where: eq(users.email, user?.emailAddresses[0].emailAddress || ''),
+      });
+      setUserData(userDataDB);
+      console.log(userDataDB)
+    };
+    if (user) {
+      fetchUserData();
+    }
+  }, [user]);
+  
+  // const userData = {
+  //   name: user?.fullName || 'User',
+  //   email: user?.emailAddresses[0].emailAddress || 'User Email',
+  //   username: user?.username || 'User Username',
+    
+    // avatarUrl: user?.imageUrl || '',
+    // currentSkill: 'Python Programming',
+    // currentLevel: 5,
+    // progress: 65, // Percentage
+  //   id: uuid('id').primaryKey().defaultRandom(),
+  // email: text('email').notNull().unique(),
+  // name: text('name'),
+  // username: text('username'),
+  // education: text('education'),
+  // occupation: text('occupation'),
+  // goals: text('goals'),
+  // interests: jsonb('interests').$type<string[]>(),
+  // };
 
   const UserAvatar = ({ name, avatarUrl }: { name: string, avatarUrl: string }) => {
     if (avatarUrl) {
@@ -61,11 +88,9 @@ export default function DashboardPage() {
     );
   };
 
-  if (!user) {
-    return <div>Loading...</div>;
+  if (!user || !userData) {
+    return <div className='flex justify-center items-center h-screen'>Loading...</div>;
   }
-  console.log(user);
-
 
   return (
     <DashLayout>
@@ -74,7 +99,7 @@ export default function DashboardPage() {
             <div className="max-w-7xl mx-auto">
               {/* Welcome Header */}
               <div className="mb-8">
-                <h1 className="text-3xl font-bold tracking-tight">Welcome back, {userData.name.split(' ')[0]}!</h1>
+                <h1 className="text-3xl font-bold tracking-tight">Welcome back, {userData?.name.split(' ')[0]}!</h1>
                 <p className="mt-1 text-lg text-gray-400">Ready to continue your learning adventure?</p>
               </div>
 

@@ -82,7 +82,7 @@ const DashLayout = ({ children }: Props) => {
             ))}
           </nav>
           <div className="px-4 py-6 border-t border-gray-700">
-            <SignOutButton redirectUrl="/signin">
+            <SignOutButton redirectUrl="/login">
             <button
               className="w-full flex items-center px-3 py-3 rounded-lg text-gray-300 hover:bg-red-600 hover:text-white transition-colors duration-200"
             >

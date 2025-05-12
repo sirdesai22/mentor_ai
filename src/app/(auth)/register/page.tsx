@@ -21,16 +21,16 @@ export default function SignupPage() {
 
         {/* Clerk SignUp Component */}
         <SignUp 
-          path="/signup" 
+          path="/register" 
           routing="path" 
-          signInUrl="/signin"
+          signInUrl="/login"
           fallbackRedirectUrl="/next-steps" // Optional: redirect after successful sign-up
         />
 
         {/* Login Link */}
         <div className="mt-8 text-center text-sm text-gray-400">
           Already have an account?{' '}
-          <Link href="/signin" passHref>
+          <Link href="/login" passHref>
             <p className="font-medium text-blue-500 hover:text-blue-400 hover:underline">
               Sign In
             </p>
