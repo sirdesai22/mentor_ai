@@ -177,7 +177,7 @@ export default function DashboardPage() {
     };
 
     // Only fetch if we have a user and no persisted data
-    if (user && !userData) {
+    if (user && !userData || user?.emailAddresses[0].emailAddress !== userData?.email) {
       console.log("Fetching user data from DB");
       fetchUserData();
     }
@@ -231,7 +231,7 @@ export default function DashboardPage() {
 
           <div className="flex flex-col gap-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* map only recent 2 games */}
+              {/* map only recent 2 skills */}
               {skillsData?.slice(0, 2)?.map((skill: any, index: number) => (
                 <div key={index} className="bg-gray-800 shadow-xl rounded-xl p-6 hover:shadow-blue-500/30 transition-shadow duration-300">
                   <div className="flex items-center justify-between mb-4">
@@ -239,7 +239,7 @@ export default function DashboardPage() {
                       <PlayCircle className="h-6 w-6 mr-2" />
                       {skill.name}
                     </h2>
-                    <Link href={`/dashboard/skills/${skill.id}`} passHref>
+                    <Link href={`/skill/${skill.id}`} passHref>
                       <p className="text-sm text-blue-500 hover:underline flex items-center">
                         View Details <ChevronRight className="h-4 w-4 ml-1" />
                       </p>
@@ -267,7 +267,7 @@ export default function DashboardPage() {
                     ></div>
                   </div>
                   <p className="text-right text-sm text-gray-500 mb-6">{skill.roadMap?.[0]?.progress?.skills_mastered || 0}% complete</p>
-                  <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
+                  <button onClick={() => router.push(`/skill/${skill.id}`)} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105">
                     Resume Learning
                   </button>
                 </div>

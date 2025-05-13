@@ -25,21 +25,7 @@ import { useUserStore } from '@/store/userStore';
 import { skills } from '@/lib/db/schema';
 import { db } from '@/lib/db';
 import { eq } from 'drizzle-orm';
-
-// Placeholder User Data
-const userData = {
-  name: 'Alex Johnson',
-  avatarUrl: '',
-};
-
-// Sidebar Navigation Links
-const sidebarNavLinks = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, current: false },
-  { name: 'My Skills', href: '/dashboard/skills', icon: BookOpen, current: true }, // Current page
-  { name: 'New Skill', href: '/dashboard/new-skill', icon: Lightbulb, current: false },
-  { name: 'Achievements', href: '/dashboard/achievements', icon: Award, current: false },
-  { name: 'Settings', href: '/dashboard/settings', icon: Settings, current: false },
-];
+import { useRouter } from 'next/navigation';
 
 interface Skill {
   id: string;
@@ -68,19 +54,6 @@ interface Skill {
   createdAt: Date | null;
 }
 
-// UserAvatar Component
-const UserAvatar = ({ name, avatarUrl }: { name: string, avatarUrl: string }) => {
-  if (avatarUrl) {
-    return <img className="h-8 w-8 rounded-full" src={avatarUrl} alt={name} />;
-  }
-  const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
-  return (
-    <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-gray-600">
-      <span className="text-xs font-medium leading-none text-white">{initials}</span>
-    </span>
-  );
-};
-
 // Skill Card Component
 const SkillCard = ({ skill }: { skill: Skill }) => {
   // Calculate overall progress for the skill
@@ -88,7 +61,7 @@ const SkillCard = ({ skill }: { skill: Skill }) => {
   const completedLevels = skill.roadMap?.filter((level) => level.isCompleted).length || 0;
   const overallProgress = totalLevels > 0 ? Math.round((completedLevels / totalLevels) * 100) : 0;
   const currentLevel = skill.roadMap?.find((level) => !level.isCompleted);
-
+  const router = useRouter();
   return (
     <div className="bg-gray-800 shadow-xl rounded-xl p-6 hover:shadow-blue-500/30 transition-shadow duration-300 flex flex-col justify-between">
       <div>
@@ -128,7 +101,7 @@ const SkillCard = ({ skill }: { skill: Skill }) => {
       </div>
 
       <button
-        onClick={() => alert(`Continue learning: ${skill.name}`)}
+        onClick={() => router.push(`/skill/${skill.id}`)}
         className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center"
       >
         {overallProgress === 100 ? 'Review Skill' : 'Continue Learning'}
@@ -180,12 +153,12 @@ export default function MySkillsPage() {
                     <h1 className="text-3xl font-bold tracking-tight">My Learning Skills</h1>
                     <p className="mt-1 text-lg text-gray-400">Track your progress and continue your learning journey.</p>
                 </div>
-                <Link href="/dashboard/new-skill" passHref>
+                {/* <Link href="/dashboard/new-skill" passHref>
                     <p className="mt-4 sm:mt-0 inline-flex items-center justify-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-green-500 transition-colors">
                         <Lightbulb className="mr-2 h-5 w-5" />
                         Add New Skill
                     </p>
-                </Link>
+                </Link> */}
               </div>
 
               {skillsData.length > 0 ? (
