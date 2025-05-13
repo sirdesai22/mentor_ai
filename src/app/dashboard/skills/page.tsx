@@ -1,7 +1,7 @@
 'use client'
 import Head from 'next/head';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
   BookOpen, // For My Skills & skill cards
@@ -21,6 +21,11 @@ import {
   Target // For levels
 } from 'lucide-react';
 import DashLayout from '@/layout/DashLayout';
+import { useUserStore } from '@/store/userStore';
+import { skills } from '@/lib/db/schema';
+import { db } from '@/lib/db';
+import { eq } from 'drizzle-orm';
+
 // Placeholder User Data
 const userData = {
   name: 'Alex Johnson',
@@ -36,88 +41,35 @@ const sidebarNavLinks = [
   { name: 'Settings', href: '/dashboard/settings', icon: Settings, current: false },
 ];
 
-// Dummy Skills Data based on the provided schema
-const dummyUserSkills = [
-  {
-    id: 'skill_uuid_1',
-    userId: 'user_uuid_alex',
-    name: 'Python Programming for Beginners',
-    description: 'Master the fundamentals of Python, from syntax to basic data structures and control flow.',
-    userStyle: 'Visual Learner, Prefers Practical Examples', // Example userStyle
-    roadMap: [
-      {
-        level: 1,
-        title: 'Python Basics: Variables & Data Types',
-        subTopic: 'Understanding core data types like integers, strings, and booleans.',
-        isCompleted: true,
-        tasks: [
-          { type: 'Quiz', content: 'Identify data types', isCompleted: true, points: 90 },
-          { type: 'CodingChallenge', content: 'Declare and print variables', isCompleted: true, points: 95 },
-        ],
-        progress: { skills_mastered: 2, total_hours: 2, total_skills: 2, current_skill: 2 }
-      },
-      {
-        level: 2,
-        title: 'Control Flow: Loops & Conditionals',
-        subTopic: 'Learn to control program execution with if/else statements and for/while loops.',
-        isCompleted: false,
-        tasks: [
-          { type: 'Game', content: 'Logic Gate Simulator', isCompleted: true, points: 80 },
-          { type: 'CodingChallenge', content: 'Write a simple calculator', isCompleted: false, points: 0 },
-          { type: 'Quiz', content: 'Conditional statements', isCompleted: false, points: 0 },
-        ],
-        progress: { skills_mastered: 1, total_hours: 1, total_skills: 3, current_skill: 1 }
-      },
-      {
-        level: 3,
-        title: 'Functions & Modules',
-        subTopic: 'Organize code into reusable blocks and import external libraries.',
-        isCompleted: false,
-        tasks: [],
-        progress: { skills_mastered: 0, total_hours: 0, total_skills: 4, current_skill: 0 }
-      }
-    ],
-    createdAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), // 10 days ago
-  },
-  {
-    id: 'skill_uuid_2',
-    userId: 'user_uuid_alex',
-    name: 'Introduction to SQL Databases',
-    description: 'Learn how to query and manage relational databases using SQL.',
-    userStyle: 'Hands-on Learner',
-    roadMap: [
-      {
-        level: 1,
-        title: 'Basic SELECT Queries',
-        subTopic: 'Retrieving data from tables.',
-        isCompleted: true,
-        tasks: [{ type: 'Quiz', content: 'SELECT syntax', isCompleted: true, points: 100 }],
-        progress: { skills_mastered: 1, total_hours: 1, total_skills: 1, current_skill: 1 }
-      },
-      {
-        level: 2,
-        title: 'Filtering with WHERE',
-        subTopic: 'Applying conditions to queries.',
-        isCompleted: false,
-        tasks: [{ type: 'CodingChallenge', content: 'Filter product list', isCompleted: false, points: 0 }],
-        progress: { skills_mastered: 0, total_hours: 0, total_skills: 1, current_skill: 0 }
-      }
-    ],
-    createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
-  },
-  {
-    id: 'skill_uuid_3',
-    userId: 'user_uuid_alex',
-    name: 'Web Development with React',
-    description: 'Build interactive user interfaces for web applications using the React library.',
-    userStyle: 'Project-based Learner',
-    roadMap: [], // No progress yet
-    createdAt: new Date().toISOString(), // Today
-  }
-];
+interface Skill {
+  id: string;
+  name: string;
+  description: string | null;
+  userId: string | null;
+  userStyle: string | null;
+  roadMap: {
+    level: number;
+    title: string;
+    subTopic: string;
+    isCompleted: boolean;
+    tasks: {
+      type: string;
+      content: string;
+      isCompleted: boolean;
+      points: number;
+    }[];
+    progress: {
+      skills_mastered: number;
+      total_hours: number;
+      total_skills: number;
+      current_skill: number;
+    };
+  }[] | null;
+  createdAt: Date | null;
+}
 
 // UserAvatar Component
-const UserAvatar = ({ name, avatarUrl }) => {
+const UserAvatar = ({ name, avatarUrl }: { name: string, avatarUrl: string }) => {
   if (avatarUrl) {
     return <img className="h-8 w-8 rounded-full" src={avatarUrl} alt={name} />;
   }
@@ -130,12 +82,12 @@ const UserAvatar = ({ name, avatarUrl }) => {
 };
 
 // Skill Card Component
-const SkillCard = ({ skill }) => {
+const SkillCard = ({ skill }: { skill: Skill }) => {
   // Calculate overall progress for the skill
-  const totalLevels = skill.roadMap.length;
-  const completedLevels = skill.roadMap.filter(level => level.isCompleted).length;
+  const totalLevels = skill.roadMap?.length || 0;
+  const completedLevels = skill.roadMap?.filter((level) => level.isCompleted).length || 0;
   const overallProgress = totalLevels > 0 ? Math.round((completedLevels / totalLevels) * 100) : 0;
-  const currentLevel = skill.roadMap.find(level => !level.isCompleted);
+  const currentLevel = skill.roadMap?.find((level) => !level.isCompleted);
 
   return (
     <div className="bg-gray-800 shadow-xl rounded-xl p-6 hover:shadow-blue-500/30 transition-shadow duration-300 flex flex-col justify-between">
@@ -146,7 +98,7 @@ const SkillCard = ({ skill }) => {
           </div>
           <h3 className="text-xl font-semibold text-gray-100">{skill.name}</h3>
         </div>
-        <p className="text-sm text-gray-400 mb-4 line-clamp-3">{skill.description}</p>
+        <p className="text-sm text-gray-400 mb-4 line-clamp-3">{skill.description || 'No description available'}</p>
         
         <div className="mb-4 space-y-2 text-sm">
           <div className="flex items-center text-gray-300">
@@ -176,7 +128,7 @@ const SkillCard = ({ skill }) => {
       </div>
 
       <button
-        onClick={() => alert(`Continue learning: ${skill.name}`)} // Placeholder action
+        onClick={() => alert(`Continue learning: ${skill.name}`)}
         className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center"
       >
         {overallProgress === 100 ? 'Review Skill' : 'Continue Learning'}
@@ -186,14 +138,37 @@ const SkillCard = ({ skill }) => {
   );
 };
 
-
 export default function MySkillsPage() {
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [skillsData, setSkillsData] = useState<Skill[]>([]);
+  const { user, setLoading, setError } = useUserStore();
 
-  const handleLogout = () => {
-    console.log('User logged out');
-    alert('Logout functionality placeholder.');
-  };
+  useEffect(() => {
+    const fetchSkillsData = async () => {
+      try {
+        setLoading(true);
+        const skillsDataDB = await db.query.skills.findMany({
+          where: eq(skills.userId, user?.id || ''),
+        });
+        
+        // Parse the roadMap JSON strings
+        const parsedSkills = skillsDataDB.map(skill => ({
+          ...skill,
+          roadMap: skill.roadMap ? JSON.parse(skill.roadMap as unknown as string) : null
+        }));
+        
+        setSkillsData(parsedSkills);
+      } catch (error) {
+        setError('Failed to fetch skills data');
+        console.error('Error fetching skills data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user?.id) {
+      fetchSkillsData();
+    }
+  }, [user?.id]);
 
   return (
     <DashLayout>
@@ -213,9 +188,9 @@ export default function MySkillsPage() {
                 </Link>
               </div>
 
-              {dummyUserSkills.length > 0 ? (
+              {skillsData.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {dummyUserSkills.map((skill) => (
+                  {skillsData.map((skill) => (
                     <SkillCard key={skill.id} skill={skill} />
                   ))}
                 </div>

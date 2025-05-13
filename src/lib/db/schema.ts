@@ -13,6 +13,7 @@ export const users = pgTable('users', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 }) 
 
+// skills are the individual skills that a user can have
 export const skills = pgTable("skills", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").references(() => users.id),
@@ -43,6 +44,7 @@ export const skills = pgTable("skills", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// levels are the individual levels that make up a skill
 export const levels = pgTable("levels", {
   id: uuid("id").primaryKey().defaultRandom(),
   skillId: uuid("skill_id").references(() => skills.id),
@@ -52,6 +54,7 @@ export const levels = pgTable("levels", {
   isCompleted: boolean("is_completed").default(false),
 });
 
+// tasks are the individual tasks that make up a level
 export const tasks = pgTable("tasks", {
   id: uuid("id").primaryKey().defaultRandom(),
   levelId: uuid("level_id").references(() => levels.id),
@@ -61,6 +64,7 @@ export const tasks = pgTable("tasks", {
   isCompleted: boolean("is_completed").default(false),
 });
 
+// userTaskProgress is the progress of a user on a task
 export const userTaskProgress = pgTable("user_task_progress", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").references(() => users.id),
@@ -68,6 +72,7 @@ export const userTaskProgress = pgTable("user_task_progress", {
   completedAt: timestamp("completed_at"),
 });
 
+// calendarEvents is the calendar events of a user
 export const calendarEvents = pgTable("calendar_events", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").references(() => users.id),
