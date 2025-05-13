@@ -13,7 +13,7 @@ export const users = pgTable('users', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 }) 
 
-export const games = pgTable("games", {
+export const skills = pgTable("skills", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id").references(() => users.id),
   name: text("name").notNull(),
@@ -33,13 +33,19 @@ export const games = pgTable("games", {
   //     isCompleted: boolean, // whether the task is completed
   //     points: number, // the points of the task out of 100
   //   },
+  //   progress: {
+  //     skills_mastered: number, // the total points of the game
+  //     total_hours: number, // the total hours of the game
+  //     total_skills: number, // the total skills of the game
+  //     current_skill: number, // the current skill of the game
+  //   }
   // }
   createdAt: timestamp("created_at").defaultNow(),
 });
 
 export const levels = pgTable("levels", {
   id: uuid("id").primaryKey().defaultRandom(),
-  gameId: uuid("game_id").references(() => games.id),
+  skillId: uuid("skill_id").references(() => skills.id),
   levelNumber: integer("level_number"),
   title: text("title"),
   subTopic: text("sub_topic"),

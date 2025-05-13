@@ -1,7 +1,8 @@
+'use client'
 import { SignOutButton, useUser } from '@clerk/nextjs'
 import { Award, Bell, BookOpen, ChevronDown, LayoutDashboard, LogOut, Menu, Plus, Search, Settings, Sparkles, X } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import React, { useState } from 'react'
 
 type Props = {
@@ -10,14 +11,13 @@ type Props = {
 
 // Sidebar Navigation Links
 const sidebarNavLinks = [
-    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard, current: true },
-    { name: 'My Games', href: '/dashboard/games', icon: BookOpen, current: false },
-    { name: 'Achievements', href: '/dashboard/achievements', icon: Award, current: false },
-    { name: 'Settings', href: '/dashboard/settings', icon: Settings, current: false },
-  ];
+    { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+    { name: 'My Skills', href: '/dashboard/skills', icon: BookOpen },
+    { name: 'Achievements', href: '/dashboard/achievements', icon: Award },
+    { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+];
 
-
-  // UserAvatar Component (reused from dashboard)
+// UserAvatar Component (reused from dashboard)
 const UserAvatar = ({ name, avatarUrl }: { name: string, avatarUrl: string }) => {
     if (avatarUrl) {
       return <img className="h-8 w-8 rounded-full" src={avatarUrl} alt={name} />;
@@ -28,11 +28,12 @@ const UserAvatar = ({ name, avatarUrl }: { name: string, avatarUrl: string }) =>
         <span className="text-xs font-medium leading-none text-white">{initials}</span>
       </span>
     );
-  };
+};
 
 const DashLayout = ({ children }: Props) => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
   const { user } = useUser();
 
   const userData = {
@@ -46,7 +47,7 @@ const DashLayout = ({ children }: Props) => {
   };
 
   return (
-    <div className="font-inter bg-gray-900 text-white min-h-screen flex antialiased">
+    <div className="font-inter bg-gray-900 text-white min-h-screen flex antialiased h-screen">
         {/* Sidebar */}
         <aside className={`fixed inset-y-0 left-0 z-40 w-64 bg-gray-800 border-r border-gray-700 transform ${mobileSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 transition-transform duration-300 ease-in-out md:static md:flex md:flex-col`}>
           <div className="flex items-center justify-between h-20 px-6 border-b border-gray-700">
@@ -66,20 +67,24 @@ const DashLayout = ({ children }: Props) => {
             </button>
           </div>
           <nav className="flex-grow px-4 py-6 space-y-2">
-            {sidebarNavLinks.map((item) => (
-              <Link key={item.name} href={item.href} passHref>
-                <p
-                  className={`flex items-center px-3 py-3 rounded-lg transition-colors duration-200
-                    ${item.current
-                      ? 'bg-blue-600 text-white shadow-md'
-                      : 'text-gray-300 hover:bg-gray-700 hover:text-white'
-                    }`}
-                >
-                  <item.icon className="h-5 w-5 mr-3" aria-hidden="true" />
-                  {item.name}
-                </p>
-              </Link>
-            ))}
+            {sidebarNavLinks.map((item) => {
+              const isActive = pathname === item.href || 
+                (item.href !== '/dashboard' && pathname.startsWith(item.href));
+              return (
+                <Link key={item.name} href={item.href} passHref>
+                  <p
+                    className={`flex items-center px-3 py-3 rounded-lg transition-colors duration-200
+                      ${isActive
+                        ? 'bg-blue-600 text-white shadow-md'
+                        : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                      }`}
+                  >
+                    <item.icon className="h-5 w-5 mr-3" aria-hidden="true" />
+                    {item.name}
+                  </p>
+                </Link>
+              );
+            })}
           </nav>
           <div className="px-4 py-6 border-t border-gray-700">
             <SignOutButton redirectUrl="/login">
@@ -104,16 +109,16 @@ const DashLayout = ({ children }: Props) => {
                 </button>
                 <div className="hidden md:flex flex-1 max-w-xs"> {/* Search can be kept or removed */}
                   <div className="relative w-full text-gray-400 focus-within:text-gray-200">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    {/* <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <Search className="h-5 w-5" aria-hidden="true" />
-                    </div>
-                    <input
+                    </div> */}
+                    {/* <input
                       id="search-field"
                       className="block w-full h-full pl-10 pr-3 py-2 border-transparent bg-gray-700 text-gray-200 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:placeholder-gray-300 sm:text-sm rounded-md"
                       placeholder="Search..."
                       type="search"
                       name="search"
-                    />
+                    /> */}
                   </div>
                 </div>
                 <div className="md:hidden flex-1"></div> {/* Spacer for mobile */}
