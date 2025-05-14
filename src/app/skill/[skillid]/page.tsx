@@ -136,43 +136,36 @@ export default function SkillDetailPage() {
                 <div className="space-y-6">
                   {skill.roadMap.levels.map((level: any, index: any) => (
                     <div key={level.level} className={`p-6 rounded-xl shadow-lg transition-all duration-300 ${level.isCompleted ? 'bg-gray-700/70 border-l-4 border-green-500' : 'bg-gray-800 border-l-4 border-blue-500 hover:shadow-blue-500/30'}`}>
-                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-3">
-                        <div className="mb-2 sm:mb-0">
-                          <div className="flex items-center">
-                            {level.isCompleted ? (
-                              <CheckCircle className="h-7 w-7 text-green-500 mr-3 flex-shrink-0" />
-                            ) : (
-                              <Target className="h-7 w-7 text-blue-500 mr-3 flex-shrink-0" />
-                            )}
-                            <h3 className="text-xl font-semibold">Level {level.level}: {level.title}</h3>
-                          </div>
-                          <p className={`mt-1 text-xs font-medium uppercase tracking-wider ${level.isCompleted ? 'text-green-400' : 'text-blue-400'}`}>
-                            {level.isCompleted ? 'Completed' : (index === 0 || skill.roadMap[index-1]?.isCompleted ? 'Current Focus' : 'Upcoming')}
-                          </p>
+                      <div className="flex items-center mb-4">
+                        {level.isCompleted ? (
+                          <CheckCircle className="h-7 w-7 text-green-500 mr-3 flex-shrink-0" />
+                        ) : (
+                          <Target className="h-7 w-7 text-blue-500 mr-3 flex-shrink-0" />
+                        )}
+                        <div>
+                          <h3 className="text-xl font-semibold">Level {level.level}: {level.title}</h3>
+                          <p className="text-gray-400 text-sm">{level.description}</p>
                         </div>
-                        <button
-                          onClick={() => alert(`Starting game for Level ${level.level}: ${level.title}`)}
-                          disabled={!level.isCompleted && index > 0 && !skill.roadMap[index-1]?.isCompleted}
-                          className={`mt-2 sm:mt-0 inline-flex items-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white transition-colors
-                            ${level.isCompleted 
-                              ? 'bg-gray-600 hover:bg-gray-500' 
-                              : (index === 0 || skill.roadMap[index-1]?.isCompleted ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-500 cursor-not-allowed opacity-60')}
-                          `}
-                        >
-                          {level.isCompleted ? 'Review Level' : 'Start Level'} <PlayCircle className="ml-2 h-5 w-5" />
-                        </button>
                       </div>
-                      <p className="text-gray-400 text-sm leading-relaxed mb-4 ml-10">{level.description}</p>
                       
                       {/* Subtopics */}
                       {level.subtopics && level.subtopics.length > 0 && (
-                        <div className="ml-10 space-y-4">
-                          {level.subtopics.map((subtopic: any) => (
-                            <div key={subtopic.name} className="border-t border-gray-700 pt-3">
-                              <h4 className="text-sm font-semibold text-gray-300 mb-2 flex items-center">
-                                <ListChecks className="h-4 w-4 mr-2 text-gray-500"/>
-                                {subtopic.name}
-                              </h4>
+                        <div className="space-y-4">
+                          {level.subtopics.map((subtopic: any, subtopicIndex: number) => (
+                            <div key={subtopic.name} className="bg-gray-700/50 rounded-lg p-4">
+                              <div className="flex justify-between items-center mb-3">
+                                <h4 className="text-sm font-semibold text-gray-200 flex items-center">
+                                  <ListChecks className="h-4 w-4 mr-2 text-gray-400"/>
+                                  {subtopic.name}
+                                </h4>
+                                <button
+                                  onClick={() => alert(`Starting ${subtopic.name}`)}
+                                  disabled={!level.isCompleted && index > 0 && !skill.roadMap[index-1]?.isCompleted}
+                                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 transition-colors"
+                                >
+                                  Start Learning <PlayCircle className="ml-2 h-4 w-4" />
+                                </button>
+                              </div>
                               <ul className="space-y-2 list-inside">
                                 {subtopic.tasks.map((task: any) => (
                                   <li key={task.title} className="text-xs flex items-center text-gray-400 hover:text-gray-300 transition-colors">
