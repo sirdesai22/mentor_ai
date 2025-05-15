@@ -100,7 +100,7 @@ const dummy_skills =[
                 ]
             },
             {
-                level: 1,
+                level: 2,
                 isCompleted: false,
                 title: "Introduction to Machine Learning",
                 description: "Learn the basics of machine learning",

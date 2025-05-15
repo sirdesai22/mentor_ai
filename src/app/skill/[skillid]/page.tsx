@@ -57,7 +57,7 @@ interface Skill {
   createdAt: string;
 }
 
-export default function SkillDetailPage() {
+export default function RoadmapPage() {
   const router = useRouter();
   const params = useParams();
   const skillid = params.skillid as string;

@@ -123,9 +123,6 @@ const DashLayout = ({ children }: Props) => {
                 </div>
                 <div className="md:hidden flex-1"></div> {/* Spacer for mobile */}
                 <div className="flex items-center space-x-4">
-                    <button onClick={() => router.push('/dashboard/create-game')} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200">
-                        New Skill <Plus className="h-6 w-6" aria-hidden="true" />
-                    </button>
                   <button className="p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
                     <Bell className="h-6 w-6" aria-hidden="true" />
                   </button>

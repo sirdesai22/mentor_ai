@@ -178,7 +178,7 @@ interface ChatMessage {
 // UserAvatar Component
 
 
-export default function LessonStudyPage() {
+export default function TopicsStudyPage() {
   const router = useRouter();
   const params = useParams();
   const skillid = params.skillid as string;
@@ -396,7 +396,7 @@ export default function LessonStudyPage() {
                 </div>
               )}
               {/* Chat Input */}
-              <div className="p-4 border-t border-gray-700 bg-gray-800 flex-shrink-0">
+              <div className="p-4 border-t border-gray-700 bg-gray-800 flex-shrink-0 mb-20">
                 <div className="flex items-center space-x-2">
                   <input
                     type="text"

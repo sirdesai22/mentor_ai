@@ -18,7 +18,8 @@ import {
   ChevronRight,
   TrendingUp, // For progress
   ListChecks, // For tasks
-  Target // For levels
+  Target, // For levels
+  Plus
 } from 'lucide-react';
 import DashLayout from '@/layout/DashLayout';
 import { useUserStore } from '@/store/userStore';
@@ -114,6 +115,7 @@ const SkillCard = ({ skill }: { skill: Skill }) => {
 export default function MySkillsPage() {
   const [skillsData, setSkillsData] = useState<Skill[]>([]);
   const { user, setLoading, setError } = useUserStore();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchSkillsData = async () => {
@@ -153,12 +155,9 @@ export default function MySkillsPage() {
                     <h1 className="text-3xl font-bold tracking-tight">My Learning Skills</h1>
                     <p className="mt-1 text-lg text-gray-400">Track your progress and continue your learning journey.</p>
                 </div>
-                {/* <Link href="/dashboard/new-skill" passHref>
-                    <p className="mt-4 sm:mt-0 inline-flex items-center justify-center px-5 py-2.5 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-green-500 transition-colors">
-                        <Lightbulb className="mr-2 h-5 w-5" />
-                        Add New Skill
-                    </p>
-                </Link> */}
+                <button onClick={() => router.push('/dashboard/create-game')} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200">
+                        New Skill <Plus className="h-6 w-6" aria-hidden="true" />
+                    </button>
               </div>
 
               {skillsData.length > 0 ? (
