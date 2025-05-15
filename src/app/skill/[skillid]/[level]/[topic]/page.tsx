@@ -189,7 +189,6 @@ export default function LessonStudyPage() {
   const [currentLevel, setCurrentLevel] = useState<any>();
   const [subTopics, setSubTopics] = useState<any>();
   const [isLoading, setIsLoading] = useState(true);
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState('');
   const [isAiTyping, setIsAiTyping] = useState(false);
@@ -211,8 +210,9 @@ export default function LessonStudyPage() {
             const foundSubtopics = foundLevel.topics[0].subTopics
             if (foundSubtopics) {
               setSubTopics(foundSubtopics);
+              console.log(foundSubtopics);
               setChatMessages([
-                { sender: 'ai' as const, text: `Hello! I'm your AI Instructor for "${foundSubtopics.title}". How can I help you today?` }
+                { sender: 'ai' as const, text: `Hello! I'm your AI Instructor for "${foundSubtopics[0].title}". How can I help you today?` }
               ]);
             } else {
               setSubTopics(null);
@@ -296,7 +296,7 @@ export default function LessonStudyPage() {
           {/* Page Content (Lesson + Chat) */}
           <div className="flex-1 flex overflow-hidden"> {/* This flex container allows two scrolling children */}
             {/* Lesson Content Area (Left) */}
-            <main className="flex-1 overflow-y-auto p-6 md:p-8 lg:p-10 bg-gray-800/50">
+            <main className="flex-1 overflow-y-auto p-6 md:p-8 lg:p-10 bg-gray-800/50 mb-20">
               <div className="max-w-3xl mx-auto">
                 <div className="mb-6">
                   <p className="text-sm text-blue-400 font-medium">Level {skill.roadMap[0].level}: {skill.roadMap[0].title}</p>
@@ -307,26 +307,41 @@ export default function LessonStudyPage() {
                          dangerouslySetInnerHTML={{ __html: skill.roadMap[0].description || '' }} />
 
                 <div>
-                  <h2 className="text-lg font-semibold">Subtopics</h2>
-                  <ul>
-                    {subTopics?.map((subtopic: any) => (
-                      <div key={subtopic.name}>
-                        {subtopic.name}
+                    {subTopics?.map((subtopic: any, index: any) => (
+                      <div key={index}>
+                        <hr className="my-4 border-gray-700" />
                         <div>
-                            <div key={subtopic.title}>
-                              <h1>{subtopic.title}</h1>
-                              <a href={subtopic.url}>
-                                {subtopic.url}
-                              </a>
-                              <div dangerouslySetInnerHTML={
-                                {__html: subtopic.content}
-                              }>
+                          <div>
+                            <h1 className={`text-xl font-semibold ${subtopic.type === 'video' ? 'text-red-400' : subtopic.type === 'article' ? 'text-blue-400' : subtopic.type === 'code' ? 'text-yellow-400' : 'text-gray-400'}`}>{subtopic.title}</h1>
+                            {subtopic.type === 'video' && (
+                              <div>
+                                {/* <p className="text-sm text-gray-400">Video Resource: <a className="text-blue-400" href={subtopic.resource} target="_blank" rel="noopener noreferrer">
+                                  {subtopic.resource}
+                                </a></p> */}
+                                <div dangerouslySetInnerHTML={{ __html: subtopic.content }}></div>
+                                <iframe src={subtopic.resource} className="w-full h-96 rounded-lg" />
                               </div>
-                            </div>
+                            )}
+                            {subtopic.type === 'article' && (
+                              <div>
+                                <p className="text-sm text-gray-400">Article Resource: <a className="text-blue-400" href={subtopic.resource} target="_blank" rel="noopener noreferrer">
+                                  {subtopic.resource}
+                                </a></p>
+                                <div dangerouslySetInnerHTML={{ __html: subtopic.content }}></div>
+                              </div>
+                            )}
+                            {subtopic.type === 'code' && (
+                              <div>
+                                <p className="text-sm text-gray-400">Code Resource: <a className="text-blue-400" href={subtopic.resource} target="_blank" rel="noopener noreferrer">
+                                  {subtopic.resource}
+                                </a></p>
+                                <div dangerouslySetInnerHTML={{ __html: subtopic.content }}></div>
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ))}
-                  </ul>
                 </div>
 
                 <div className="mt-10 pt-6 border-t border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-4">
