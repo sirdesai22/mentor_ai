@@ -308,37 +308,47 @@ export default function TopicsStudyPage() {
 
                 <div>
                     {subTopics?.map((subtopic: any, index: any) => (
-                      <div key={index}>
-                        <hr className="my-4 border-gray-700" />
+                      <div key={index} className="bg-gray-800 p-4 rounded-lg shadow-md mb-6">
                         <div>
-                          <div>
-                            <h1 className={`text-xl font-semibold ${subtopic.type === 'video' ? 'text-red-400' : subtopic.type === 'article' ? 'text-blue-400' : subtopic.type === 'code' ? 'text-yellow-400' : 'text-gray-400'}`}>{subtopic.title}</h1>
-                            {subtopic.type === 'video' && (
-                              <div>
-                                {/* <p className="text-sm text-gray-400">Video Resource: <a className="text-blue-400" href={subtopic.resource} target="_blank" rel="noopener noreferrer">
-                                  {subtopic.resource}
-                                </a></p> */}
-                                <div dangerouslySetInnerHTML={{ __html: subtopic.content }}></div>
-                                <iframe src={subtopic.resource} className="w-full h-96 rounded-lg" />
-                              </div>
-                            )}
-                            {subtopic.type === 'article' && (
-                              <div>
-                                <p className="text-sm text-gray-400">Article Resource: <a className="text-blue-400" href={subtopic.resource} target="_blank" rel="noopener noreferrer">
-                                  {subtopic.resource}
-                                </a></p>
-                                <div dangerouslySetInnerHTML={{ __html: subtopic.content }}></div>
-                              </div>
-                            )}
-                            {subtopic.type === 'code' && (
-                              <div>
-                                <p className="text-sm text-gray-400">Code Resource: <a className="text-blue-400" href={subtopic.resource} target="_blank" rel="noopener noreferrer">
-                                  {subtopic.resource}
-                                </a></p>
-                                <div dangerouslySetInnerHTML={{ __html: subtopic.content }}></div>
-                              </div>
-                            )}
-                          </div>
+                          <h1 className={`text-xl font-semibold mb-2 ${subtopic.type === 'video' ? 'text-red-400' : subtopic.type === 'article' ? 'text-blue-400' : subtopic.type === 'code' ? 'text-yellow-400' : 'text-gray-400'}`}>{subtopic.title}</h1>
+                          {subtopic.type === 'video' && (
+                            <div className="mb-4">
+                              <div dangerouslySetInnerHTML={{ __html: subtopic.content }}></div>
+                              <iframe src={subtopic.resource} className="w-full h-96 rounded-lg mt-2" />
+                            </div>
+                          )}
+                          {subtopic.type === 'article' && (
+                            <div className="mb-4">
+                              <p className="text-sm text-gray-400 mb-2">Article Resource: <a className="text-blue-400" href={subtopic.resource} target="_blank" rel="noopener noreferrer">
+                                {subtopic.resource}
+                              </a></p>
+                              <div dangerouslySetInnerHTML={{ __html: subtopic.content }}></div>
+                            </div>
+                          )}
+                          {subtopic.type === 'code' && (
+                            <div className="mb-4">
+                              <p className="text-sm text-gray-400 mb-2">Code Resource: <a className="text-blue-400" href={subtopic.resource} target="_blank" rel="noopener noreferrer">
+                                {subtopic.resource}
+                              </a></p>
+                              <div dangerouslySetInnerHTML={{ __html: subtopic.content }}></div>
+                            </div>
+                          )}
+                        </div>
+                        <div className="mb-4">
+                          <h2 className="text-lg font-semibold mb-2">Key Points</h2>
+                          <ul className="list-disc list-inside text-gray-300 space-y-1">
+                            {subtopic.keyPoints.map((point: any, index: any) => (
+                              <li key={index}>{point}</li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div>
+                          <h2 className="text-lg font-semibold mb-2">Practice Projects</h2>
+                          <ul className="list-disc list-inside text-gray-300 space-y-1">
+                            {subtopic.practiceProjects.map((project: any, index: any) => (
+                              <li key={index}>{project}</li>
+                            ))}
+                          </ul>
                         </div>
                       </div>
                     ))}
