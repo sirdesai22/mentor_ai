@@ -28,117 +28,7 @@ import {
 } from 'lucide-react';
 import { useSkillsStore } from '@/store/skillsStore';
 import { dummy_roadmap } from '@/lib/dummy_datas/roadmap';
-
-// Dummy data for testing
-const dummySkill = {
-  id: 'skill_1',
-  name: 'Web Development',
-  description: 'Master full-stack web development from scratch with modern technologies.',
-  userStyle: 'Visual Learner',
-  roadMap: {
-    topic: "Web Development",
-    description: "A gamified roadmap to learn full-stack web development from scratch.",
-    levels: [
-      {
-        level: 0,
-        isCompleted: false,
-        title: "Getting Started",
-        description: "Learn the basics of how the web works.",
-        subtopics: [
-          {
-            name: "What is the Internet?",
-            tasks: [
-              {
-                type: "video",
-                title: "How the Internet Works",
-                url: "https://example.com/video"
-              },
-              {
-                type: "quiz",
-                title: "Basics of Internet Quiz"
-              }
-            ]
-          },
-          {
-            name: "HTTP & Browsers",
-            tasks: [
-              {
-                type: "article",
-                title: "Intro to HTTP",
-                url: "https://example.com/article"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        level: 1,
-        isCompleted: false,
-        title: "Frontend Foundations",
-        description: "Dive into HTML, CSS, and basic JavaScript.",
-        subtopics: [
-          {
-            name: "HTML Basics",
-            tasks: [
-              {
-                type: "code",
-                title: "Build your first HTML page"
-              }
-            ]
-          },
-          {
-            name: "CSS Styling",
-            tasks: [
-              {
-                type: "video",
-                title: "CSS Crash Course"
-              },
-              {
-                type: "practice",
-                title: "Style a personal blog"
-              }
-            ]
-          }
-        ]
-      },
-      {
-        level: 2,
-        isCompleted: false,
-        title: "React Basics",
-        description: "Learn the basics of React.",
-        subtopics: [
-          {
-            name: "React Introduction",
-            tasks: [
-              {
-                type: "code",
-                title: "Build your first React app"
-              }
-            ]
-          },
-          {
-            name: "React Components",
-            tasks: [
-              {
-                type: "video",
-                title: "React Components"
-              },
-              {
-                type: "practice",
-                title: "Create a simple component"
-              }
-            ]
-          }
-        ]
-      }
-    ],
-    completion_rewards: {
-      badge: "Web Dev Explorer",
-      level_up_message: "Great job! You're now a Level 1 Developer!",
-      final_certificate: true
-    }
-  }
-};
+import dummy_skills from '@/lib/dummy_datas/db_overview';
 
 interface Skill {
   id: string;
@@ -181,7 +71,7 @@ export default function SkillDetailPage() {
       setIsLoading(true);
       // Use dummy data for now
       setTimeout(() => {
-        setSkill(dummySkill);
+        setSkill(dummy_skills[0]);
         setIsLoading(false);
       }, 500); // Simulating network delay
     }
@@ -189,7 +79,7 @@ export default function SkillDetailPage() {
 
   if (skill) {
     console.log(skill);
-    skill.roadMap = dummy_roadmap;
+    // skill.roadMap = dummy_skills[0].roadMap;
   }
 
   if (isLoading) {
@@ -239,12 +129,12 @@ export default function SkillDetailPage() {
               {/* Roadmap/Levels Section */}
               <h2 className="text-2xl font-semibold mb-6 flex items-center">
                 <Target className="h-7 w-7 mr-3 text-green-400" />
-                Learning Roadmap
+                Roadmap
               </h2>
 
               {skill.roadMap ? (
                 <div className="space-y-6">
-                  {skill.roadMap.levels.map((level: any, index: any) => (
+                  {skill.roadMap.map((level: any, index: any) => (
                     <div key={level.level} className={`p-6 rounded-xl shadow-lg transition-all duration-300 ${level.isCompleted ? 'bg-gray-700/70 border-l-4 border-green-500' : 'bg-gray-800 border-l-4 border-blue-500 hover:shadow-blue-500/30'}`}>
                       <div className="flex items-center mb-4">
                         {level.isCompleted ? (
@@ -259,17 +149,17 @@ export default function SkillDetailPage() {
                       </div>
                       
                       {/* Subtopics */}
-                      {level.subtopics && level.subtopics.length > 0 && (
+                      {level.topics && level.topics.length > 0 && (
                         <div className="space-y-4">
-                          {level.subtopics.map((subtopic: any, subtopicIndex: number) => (
-                            <div key={subtopic.name} className="bg-gray-700/50 rounded-lg p-4">
+                          {level.topics.map((topic: any, topicIndex: number) => (
+                            <div key={topic.name} className="bg-gray-700/50 rounded-lg p-4">
                               <div className="flex justify-between items-center mb-3">
                                 <h4 className="text-sm font-semibold text-gray-200 flex items-center">
                                   <ListChecks className="h-4 w-4 mr-2 text-gray-400"/>
-                                  {subtopic.name}
+                                  {topic.name}
                                 </h4>
                                 <button
-                                  onClick={() => router.push(`/skill/${skillid}/${level.level}/${subtopic.name}`)}
+                                  onClick={() => router.push(`/skill/${skillid}/${level.level}/${topic.name}`)}
                                   disabled={!level.isCompleted && index > 0 && !skill.roadMap[index-1]?.isCompleted}
                                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 transition-colors"
                                 >
@@ -277,16 +167,16 @@ export default function SkillDetailPage() {
                                 </button>
                               </div>
                               <ul className="space-y-2 list-inside">
-                                {subtopic.tasks.map((task: any) => (
-                                  <li key={task.title} className="text-xs flex items-center text-gray-400 hover:text-gray-300 transition-colors">
-                                    <Circle className="h-3.5 w-3.5 mr-1.5 flex-shrink-0" />
+                                {topic.subTopics.map((subtopic: any) => (
+                                  <li key={subtopic.title} className="text-xs flex items-center text-gray-400 hover:text-gray-300 transition-colors">
+                                    {/* <Circle className="h-3.5 w-3.5 mr-1.5 flex-shrink-0" /> */}
                                     <span className="flex items-center">
-                                      {task.type === 'video' && <PlayCircle className="h-3 w-3 mr-1" />}
-                                      {task.type === 'quiz' && <Target className="h-3 w-3 mr-1" />}
-                                      {task.type === 'code' && <Code className="h-3 w-3 mr-1" />}
-                                      {task.type === 'article' && <BookOpen className="h-3 w-3 mr-1" />}
-                                      {task.type === 'practice' && <Wrench className="h-3 w-3 mr-1" />}
-                                      {task.title}
+                                      {subtopic.type === 'video' && <PlayCircle className="h-3 w-3 mr-1" />}
+                                      {subtopic.type === 'quiz' && <Target className="h-3 w-3 mr-1" />}
+                                      {subtopic.type === 'code' && <Code className="h-3 w-3 mr-1" />}
+                                      {subtopic.type === 'article' && <BookOpen className="h-3 w-3 mr-1" />}
+                                      {subtopic.type === 'practice' && <Wrench className="h-3 w-3 mr-1" />}
+                                      {subtopic.title}
                                     </span>
                                   </li>
                                 ))}
