@@ -77,7 +77,6 @@ export const useTopicStudy = (): UseTopicStudyReturn => {
 
       For ${learningStyle} learners:
       - visual: Focus on video content and visual explanations
-      - auditory: Include audio resources and detailed explanations
       - reading: Provide comprehensive articles and documentation
       - kinesthetic: Emphasize practical exercises and code examples
 

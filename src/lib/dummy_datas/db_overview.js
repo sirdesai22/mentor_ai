@@ -17,6 +17,7 @@ const dummy_skills =[
                 ],
                 topics: [
                     {
+                        id: 1,
                         name: "what is machine learning?",
                         isCompleted: false,
                         isGenerated: false,
@@ -100,6 +101,7 @@ const dummy_skills =[
                         ]
                     },
                     {
+                        id: 2,
                         name: "what is deep learning?",
                         isCompleted: false,
                         isGenerated: false,
@@ -171,6 +173,7 @@ const dummy_skills =[
                 ],
                 topics: [
                     {
+                        id: 1,
                         name: "what is machine learning?",
                         isCompleted: false,
                         isGenerated: false,
@@ -185,6 +188,7 @@ const dummy_skills =[
                         ]
                     },
                     {
+                        id: 2,
                         name: "what is deep learning?",
                         isCompleted: false,
                         isGenerated: false,

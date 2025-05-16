@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import DashLayout from '@/layout/DashLayout';
 import dummy_skills from '@/lib/dummy_datas/db_overview';
+import { useTopicStudy } from '@/hooks/generateTopicStudy';
 
 interface ChatMessage {
   sender: 'user' | 'ai';
@@ -183,7 +184,7 @@ export default function TopicsStudyPage() {
   const params = useParams();
   const skillid = params.skillid as string;
   const level = params.level as string;
-  const topic = params.topic as string;
+  const topicid = params.topicid as string;
 
   const [skill, setSkill] = useState<any>();
   const [currentLevel, setCurrentLevel] = useState<any>();
@@ -194,8 +195,14 @@ export default function TopicsStudyPage() {
   const [isAiTyping, setIsAiTyping] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
+  const { generateStudyMaterial, studyMaterial, isLoading: isStudyLoading, error: studyError } = useTopicStudy();
+  
+
   useEffect(() => {
-    if (skillid && level && topic) {
+    if (skillid && level && topicid) {
+      console.log(topicid);
+      console.log(skillid);
+      console.log(level);
       setIsLoading(true);
       // Simulate API call
       setTimeout(() => {
@@ -226,7 +233,7 @@ export default function TopicsStudyPage() {
         setIsLoading(false);
       }, 700);
     }
-  }, [skillid, level, topic]);
+  }, [skillid, level, topicid]);
 
   // Scroll chat to bottom
   useEffect(() => {
@@ -257,7 +264,7 @@ export default function TopicsStudyPage() {
     setChatInput(question);
   };
 
-  if (isLoading) {
+  if (isLoading || isStudyLoading) {
     return (
       <div className="font-inter bg-gray-900 text-white min-h-screen flex items-center justify-center">
         <Loader2 className="h-12 w-12 animate-spin text-blue-500" />
