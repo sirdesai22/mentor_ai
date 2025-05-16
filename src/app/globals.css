@@ -24,3 +24,18 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+pre{
+  background-color: #171717;
+  padding: 15px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-family: monospace;
+  margin-bottom: 20px;
+}
+code{
+  background-color: #171717 !important;
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  font-family: monospace;
+}

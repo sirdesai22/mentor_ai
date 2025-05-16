@@ -74,7 +74,7 @@ export const useTopicStudy = (): UseTopicStudyReturn => {
             keyPoints: string[];
         }
       ]
-
+      Include tailwind css classes for styling the content.
       For ${learningStyle} learners:
       - visual: Focus on video content and visual explanations
       - reading: Provide comprehensive articles and documentation
