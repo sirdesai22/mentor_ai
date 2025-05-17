@@ -28,40 +28,13 @@ import { db } from '@/lib/db';
 import { eq } from 'drizzle-orm';
 import { useRouter } from 'next/navigation';
 
-interface Skill {
-  id: string;
-  name: string;
-  description: string | null;
-  userId: string | null;
-  userStyle: string | null;
-  roadMap: {
-    level: number;
-    title: string;
-    subTopic: string;
-    isCompleted: boolean;
-    tasks: {
-      type: string;
-      content: string;
-      isCompleted: boolean;
-      points: number;
-    }[];
-    progress: {
-      skills_mastered: number;
-      total_hours: number;
-      total_skills: number;
-      current_skill: number;
-    };
-  }[] | null;
-  createdAt: Date | null;
-}
-
 // Skill Card Component
-const SkillCard = ({ skill }: { skill: Skill }) => {
+const SkillCard = ({ skill }: { skill: any }) => {
   // Calculate overall progress for the skill
   const totalLevels = skill.roadMap?.length || 0;
-  const completedLevels = skill.roadMap?.filter((level) => level.isCompleted).length || 0;
+  const completedLevels = skill.roadMap?.filter((level: any) => level.isCompleted).length || 0;
   const overallProgress = totalLevels > 0 ? Math.round((completedLevels / totalLevels) * 100) : 0;
-  const currentLevel = skill.roadMap?.find((level) => !level.isCompleted);
+  const currentLevel = skill.roadMap?.find((level: any) => !level.isCompleted);
   const router = useRouter();
   return (
     <div className="bg-gray-800 shadow-xl rounded-xl p-6 hover:shadow-blue-500/30 transition-shadow duration-300 flex flex-col justify-between">
@@ -113,7 +86,7 @@ const SkillCard = ({ skill }: { skill: Skill }) => {
 };
 
 export default function MySkillsPage() {
-  const [skillsData, setSkillsData] = useState<Skill[]>([]);
+  const [skillsData, setSkillsData] = useState<any[]>([]);
   const { user, setLoading, setError } = useUserStore();
   const router = useRouter();
 
@@ -124,14 +97,16 @@ export default function MySkillsPage() {
         const skillsDataDB = await db.query.skills.findMany({
           where: eq(skills.userId, user?.id || ''),
         });
+        console.log("skillsDataDB", skillsDataDB);
         
+        setSkillsData(skillsDataDB as any);
         // Parse the roadMap JSON strings
-        const parsedSkills = skillsDataDB.map(skill => ({
-          ...skill,
-          roadMap: skill.roadMap ? JSON.parse(skill.roadMap as unknown as string) : null
-        }));
-        
-        setSkillsData(parsedSkills);
+        // const parsedSkills = skillsDataDB.map(skill => ({
+        //   ...skill,
+        //   roadMap: skill.roadMap ? JSON.parse(skill.roadMap as unknown as string) : null
+        // }));
+        // console.log("parsedSkills", parsedSkills);
+        // setSkillsData(parsedSkills as any);
       } catch (error) {
         setError('Failed to fetch skills data');
         console.error('Error fetching skills data:', error);

@@ -190,7 +190,7 @@ export default function DashboardPage() {
         const skillsDataDB = await db.query.skills.findMany({
           where: eq(skills.userId, userData?.id || ''),
         });
-        setSkills(skillsDataDB);
+        setSkills(skillsDataDB as any);
       } catch (error) {
         console.error('Error fetching skills data:', error);
       }

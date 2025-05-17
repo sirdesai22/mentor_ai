@@ -1,60 +1,33 @@
 import { useState } from 'react';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-type LearningStyle = 'visual' | 'auditory' | 'reading' | 'kinesthetic';
+type LearningStyle = 'visual' | 'reading' | 'kinesthetic';
 type ResourceType = 'video' | 'article' | 'code';
 
-interface StudyResource {
+interface StudyMaterial {
   type: ResourceType;
   title: string;
-  url: string;
-  description: string;
-  duration: string;
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
-}
-
-interface StudyMaterial {
-  topic: string;
-  subtopic: string;
-  resources: StudyResource[];
-  practiceExercises: string[];
+  content: string;
+  resources: string;
+  estimatedTime: string;
+  practiceProjects: string[];
   keyPoints: string[];
 }
 
-interface UseTopicStudyReturn {
-  studyMaterial: StudyMaterial | null;
-  isLoading: boolean;
-  error: string | null;
-  generateStudyMaterial: (params: {
-    topic: string;
-    subtopics: string[];
-    learningStyle: LearningStyle;
-    resourceTypes: ResourceType[];
-  }) => Promise<void>;
+interface GenerateStudyMaterialParams {
+  topic: string;
+  subtopics: string[];
+  learningStyle: LearningStyle;
 }
 
-export const useTopicStudy = (): UseTopicStudyReturn => {
-  const [studyMaterial, setStudyMaterial] = useState<StudyMaterial | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+interface UseTopicStudyReturn {
+  isLoading: boolean;
+  error: string | null;
+  generateStudyMaterial: (params: GenerateStudyMaterialParams) => Promise<any | null>;
+}
 
-  const generateStudyMaterial = async ({
-    topic,
-    subtopics,
-    learningStyle,
-  }: {
-    topic: string;
-    subtopics: string[];
-    learningStyle: LearningStyle;
-  }) => {
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || '');
-      const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
-
-      const prompt = `Generate detailed study materials for the subtopics "${subtopics}".
+const createPrompt = (topic: string, subtopics: string[], learningStyle: LearningStyle): string => {
+  return `Generate detailed study materials for the subtopics "${subtopics}".
       The user's learning style is ${learningStyle}.
 
       Include:
@@ -81,22 +54,41 @@ export const useTopicStudy = (): UseTopicStudyReturn => {
       - kinesthetic: Emphasize practical exercises and code examples
 
       Ensure all resources are high-quality and up-to-date.`;
+};
 
+export const useTopicStudy = (): UseTopicStudyReturn => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const generateStudyMaterial = async ({
+    topic,
+    subtopics,
+    learningStyle,
+  }: GenerateStudyMaterialParams): Promise<any | null> => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || '');
+      const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+
+      const prompt = createPrompt(topic, subtopics, learningStyle);
       const result = await model.generateContent(prompt);
       const response = await result.response;
       const text = response.text();
       
-      const studyData = JSON.parse(text) as StudyMaterial;
-      setStudyMaterial(studyData);
+      const studyData = JSON.parse(text);
+      return studyData.data as any;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate study materials');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to generate study materials';
+      setError(errorMessage);
+      return null;
     } finally {
       setIsLoading(false);
     }
   };
 
   return {
-    studyMaterial,
     isLoading,
     error,
     generateStudyMaterial,

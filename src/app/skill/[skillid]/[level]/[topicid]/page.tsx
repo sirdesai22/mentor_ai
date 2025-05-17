@@ -1,7 +1,7 @@
-'use client'
-import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import { useState, useEffect, useRef } from 'react';
+"use client";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+import { useState, useEffect, useRef } from "react";
 import {
   LayoutDashboard,
   BookOpen,
@@ -23,24 +23,24 @@ import {
   Circle,
   Loader2,
   FileText, // For lesson content
-  HelpCircle // For suggested questions
-} from 'lucide-react';
-import DashLayout from '@/layout/DashLayout';
-import dummy_skills from '@/lib/dummy_datas/db_overview';
-import { useTopicStudy } from '@/hooks/generateTopicStudy';
-import { createClient } from '@supabase/supabase-js';
-import { db } from '@/lib/db';
-import { genratedData, skills } from '@/lib/db/schema';
-import { eq, inArray } from 'drizzle-orm';
+  HelpCircle, // For suggested questions
+} from "lucide-react";
+import DashLayout from "@/layout/DashLayout";
+import dummy_skills from "@/lib/dummy_datas/db_overview";
+import { useTopicStudy } from "@/hooks/generateTopicStudy";
+import { createClient } from "@supabase/supabase-js";
+import { db } from "@/lib/db";
+import { genratedData, skills } from "@/lib/db/schema";
+import { eq, inArray } from "drizzle-orm";
 
 interface ChatMessage {
-  sender: 'user' | 'ai';
+  sender: "user" | "ai";
   text: string;
 }
 
 interface SubTopic {
   id: string;
-  type: 'video' | 'article' | 'code';
+  type: "video" | "article" | "code";
   title: string;
   content: string;
   resource: string;
@@ -85,12 +85,15 @@ export default function TopicsStudyPage() {
   const [subTopics, setSubTopics] = useState<SubTopic[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
-  const [chatInput, setChatInput] = useState('');
+  const [chatInput, setChatInput] = useState("");
   const [isAiTyping, setIsAiTyping] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  const { generateStudyMaterial, studyMaterial, isLoading: isStudyLoading, error: studyError } = useTopicStudy();
-  
+  const {
+    generateStudyMaterial,
+    isLoading: isStudyLoading,
+    error: studyError,
+  } = useTopicStudy();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -102,52 +105,90 @@ export default function TopicsStudyPage() {
           where: eq(skills.id, skillid as string),
         });
 
-        if (!skillData) throw new Error('Skill not found');
+        if (!skillData) throw new Error("Skill not found");
 
         setSkill(skillData as unknown as Skill);
         // console.log("skillData", skillData);
 
         // 2. Find the current level
-        const foundLevel = skillData.roadMap?.find((l: any) => l.level === parseInt(level as string));
-        if (!foundLevel) throw new Error('Level not found');
+        const foundLevel = skillData.roadMap?.find(
+          (l: any) => l.level === parseInt(level as string)
+        );
+        if (!foundLevel) throw new Error("Level not found");
         setCurrentLevel(foundLevel as unknown as Level);
         // console.log("foundLevel", foundLevel);
 
         // console.log("topicid", topicid);
 
         // 3. Find the current topic
-        const foundTopic = foundLevel?.topics.find((t: any) => t.id === parseInt(topicid as string));
-        if (!foundTopic) throw new Error('Topic not found');
+        const foundTopic = foundLevel?.topics.find(
+          (t: any) => t.id === parseInt(topicid as string)
+        );
+        if (!foundTopic) throw new Error("Topic not found");
         // console.log("foundTopic", foundTopic);
         // console.log("foundTopic.subTopics", foundTopic.subTopics);
-
-        // 4. Fetch subtopics data from generatedData table
-        const generatedData = await db.query.genratedData.findFirst({
-          where: eq(genratedData.topicId, foundTopic.id),
-        });
-        console.log("generatedData", generatedData?.data);
-
-        if (!generatedData) throw new Error('Generated data not found');
-
-        // // 5. Map the generated data to the subtopics structure
-        // const mappedSubTopics = foundTopic.subTopics.map((st: any) => {
-        //   const generatedContent = generatedData.find(gd => gd.id === st.id);
-        //   return {
-        //     ...st,
-        //     ...generatedContent
-        //   };
-        // });
-
-        setSubTopics(generatedData?.data as unknown as SubTopic[]);
-        setChatMessages([
-          { 
-            sender: 'ai', 
-            text: `Hello! I'm your AI Instructor for "${(generatedData?.data as any)[0]?.title || 'Demo Question!'}". How can I help you today?` 
+        if (!foundTopic.isGenerated) {
+          //TODO: Generate the content
+          const generatedData = await generateStudyMaterial({
+            topic: foundTopic.name,
+            subtopics: foundTopic.subTopics,
+            learningStyle: (skillData.userStyle as any) || "visual",
+          });
+          console.log("generatedData", generatedData);
+          if (generatedData === null) {
+            setIsLoading(false);
+            return;
           }
-        ]);
 
+          setSubTopics(generatedData as any);
+          //set the isGenerated to true and data to the foundTopic in DB
+          await db
+            .update(skills)
+            .set({
+              roadMap: skillData?.roadMap?.map((l: any) =>
+                l.id === parseInt(level as string)
+                  ? {
+                      ...l,
+                      topics: l.topics.map((t: any) =>
+                        t.id === parseInt(topicid as string)
+                          ? {
+                              ...t,
+                              isGenerated: true,
+                              subTopics: generatedData,
+                            }
+                          : t
+                      ),
+                    }
+                  : l
+              ),
+            })
+            .where(eq(skills.id, skillid as string));
+
+          console.log("updated foundTopic", foundTopic);
+          setChatMessages([
+            {
+              sender: "ai",
+              text: `Hello! I'm your AI Instructor for "${
+                (generatedData?.data as any)[0]?.title || "Demo Question!"
+              }". How can I help you today?`,
+            },
+          ]);
+
+          setIsLoading(false);
+          return;
+        } else {
+          setSubTopics(foundTopic.subTopics as unknown as SubTopic[]);
+          setChatMessages([
+            {
+              sender: "ai",
+              text: `Hello! I'm your AI Instructor for "${
+                (foundTopic.subTopics as any)[0]?.title || "Demo Question!"
+              }". How can I help you today?`,
+            },
+          ]);
+        }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error("Error fetching data:", error);
         // Handle error appropriately
       } finally {
         setIsLoading(false);
@@ -162,28 +203,37 @@ export default function TopicsStudyPage() {
   // Scroll chat to bottom
   useEffect(() => {
     if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      chatContainerRef.current.scrollTop =
+        chatContainerRef.current.scrollHeight;
     }
   }, [chatMessages]);
 
-
   const handleSendMessage = () => {
     if (!chatInput.trim()) return;
-    const newMessages: ChatMessage[] = [...chatMessages, { sender: 'user' as const, text: chatInput }];
+    const newMessages: ChatMessage[] = [
+      ...chatMessages,
+      { sender: "user" as const, text: chatInput },
+    ];
     setChatMessages(newMessages);
-    setChatInput('');
+    setChatInput("");
     setIsAiTyping(true);
 
     // Simulate AI response
     setTimeout(() => {
       setIsAiTyping(false);
-      setChatMessages(prev => [...prev, { 
-        sender: 'ai' as const, 
-        text: `I've received your question about "${chatInput.substring(0,20)}...". Let me explain that... (AI response placeholder)` 
-      }]);
+      setChatMessages((prev) => [
+        ...prev,
+        {
+          sender: "ai" as const,
+          text: `I've received your question about "${chatInput.substring(
+            0,
+            20
+          )}...". Let me explain that... (AI response placeholder)`,
+        },
+      ]);
     }, 1500 + Math.random() * 1000);
   };
-  
+
   const handleSuggestedQuestion = (question: string) => {
     setChatInput(question);
   };
@@ -201,8 +251,12 @@ export default function TopicsStudyPage() {
     return (
       <div className="font-inter bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-4">
         <FileText className="h-24 w-24 text-red-500 mb-4" />
-        <h1 className="text-2xl font-semibold mb-2 text-center">Lesson Not Found</h1>
-        <p className="text-gray-400 mb-6 text-center">The requested lesson material could not be located.</p>
+        <h1 className="text-2xl font-semibold mb-2 text-center">
+          Lesson Not Found
+        </h1>
+        <p className="text-gray-400 mb-6 text-center">
+          The requested lesson material could not be located.
+        </p>
         <Link href={`/skill/${skillid}`} passHref>
           <p className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700">
             <ChevronLeft className="mr-2 h-5 w-5" />
@@ -223,119 +277,216 @@ export default function TopicsStudyPage() {
     <DashLayout>
       <div className="font-inter bg-gray-900 text-white min-h-screen flex antialiased">
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col max-h-screen overflow-hidden"> {/* Ensure main content area doesn't overflow viewport height */}
+        <div className="flex-1 flex flex-col max-h-screen overflow-hidden">
+          {" "}
+          {/* Ensure main content area doesn't overflow viewport height */}
           {/* Page Content (Lesson + Chat) */}
-          <div className="flex-1 flex overflow-hidden"> {/* This flex container allows two scrolling children */}
+          <div className="flex-1 flex overflow-hidden">
+            {" "}
+            {/* This flex container allows two scrolling children */}
             {/* Lesson Content Area (Left) */}
             <main className="flex-1 overflow-y-auto p-6 md:p-8 lg:p-10 bg-gray-800/50 mb-20">
               <div className="max-w-3xl mx-auto">
                 <div className="mb-6">
-                  <p className="text-sm text-blue-400 font-medium">Level {skill.roadMap[0].level}: {skill.roadMap[0].title}</p>
-                  <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-100 mt-1">{skill.roadMap[0].title}</h1>
+                  <p className="text-sm text-blue-400 font-medium">
+                    Level {skill.roadMap[0].level}: {skill.roadMap[0].title}
+                  </p>
+                  <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-gray-100 mt-1">
+                    {skill.roadMap[0].title}
+                  </h1>
                 </div>
 
-                <article className="prose prose-sm sm:prose-base prose-invert max-w-none text-gray-300 prose-headings:text-gray-100 prose-strong:text-gray-200 prose-p:text-blue-400 hover:prose-p:text-blue-300 prose-code:bg-gray-900 prose-code:p-0.5 prose-code:rounded prose-code:font-mono prose-pre:bg-gray-900 prose-pre:p-4 prose-pre:rounded-lg prose-pre:text-sm"
-                         dangerouslySetInnerHTML={{ __html: skill.roadMap[0].description || '' }} />
+                <article
+                  className="prose prose-sm sm:prose-base prose-invert max-w-none text-gray-300 prose-headings:text-gray-100 prose-strong:text-gray-200 prose-p:text-blue-400 hover:prose-p:text-blue-300 prose-code:bg-gray-900 prose-code:p-0.5 prose-code:rounded prose-code:font-mono prose-pre:bg-gray-900 prose-pre:p-4 prose-pre:rounded-lg prose-pre:text-sm"
+                  dangerouslySetInnerHTML={{
+                    __html: skill.roadMap[0].description || "",
+                  }}
+                />
 
                 <div>
-                    {subTopics?.map((subtopic: any, index: any) => (
-                      <div key={index} className="bg-gray-800 p-4 rounded-lg shadow-md mb-6">
-                        <div>
-                          <h1 className={`text-xl font-semibold mb-2 ${subtopic.type === 'video' ? 'text-red-400' : subtopic.type === 'article' ? 'text-blue-400' : subtopic.type === 'code' ? 'text-yellow-400' : 'text-gray-400'}`}>{subtopic.title}</h1>
-                          {subtopic.type === 'video' && (
-                            <div className="mb-4">
-                              <div dangerouslySetInnerHTML={{ __html: subtopic.content }}></div>
-                              <iframe src={subtopic.resource} className="w-full h-96 rounded-lg mt-2" />
-                            </div>
-                          )}
-                          {subtopic.type === 'article' && (
-                            <div className="mb-4">
-                              <p className="text-sm text-gray-400 mb-2">Article Resource: <a className="text-blue-400" href={subtopic.resource} target="_blank" rel="noopener noreferrer">
+                  {subTopics?.map((subtopic: any, index: any) => (
+                    <div
+                      key={index}
+                      className="bg-gray-800 p-4 rounded-lg shadow-md mb-6"
+                    >
+                      <div>
+                        <h1
+                          className={`text-xl font-semibold mb-2 ${
+                            subtopic.type === "video"
+                              ? "text-red-400"
+                              : subtopic.type === "article"
+                              ? "text-blue-400"
+                              : subtopic.type === "code"
+                              ? "text-yellow-400"
+                              : "text-gray-400"
+                          }`}
+                        >
+                          {subtopic.title}
+                        </h1>
+                        {subtopic.type === "video" && (
+                          <div className="mb-4">
+                            <div
+                              dangerouslySetInnerHTML={{
+                                __html: subtopic.content,
+                              }}
+                            ></div>
+                            <iframe
+                              src={subtopic.resource}
+                              className="w-full h-96 rounded-lg mt-2"
+                            />
+                          </div>
+                        )}
+                        {subtopic.type === "article" && (
+                          <div className="mb-4">
+                            <p className="text-sm text-gray-400 mb-2">
+                              Article Resource:{" "}
+                              <a
+                                className="text-blue-400"
+                                href={subtopic.resource}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
                                 {subtopic.resource}
-                              </a></p>
-                              <div dangerouslySetInnerHTML={{ __html: subtopic.content }}></div>
-                            </div>
-                          )}
-                          {subtopic.type === 'code' && (
-                            <div className="mb-4">
-                              <p className="text-sm text-gray-400 mb-2">Code Resource: <a className="text-blue-400" href={subtopic.resource} target="_blank" rel="noopener noreferrer">
+                              </a>
+                            </p>
+                            <div
+                              dangerouslySetInnerHTML={{
+                                __html: subtopic.content,
+                              }}
+                            ></div>
+                          </div>
+                        )}
+                        {subtopic.type === "code" && (
+                          <div className="mb-4">
+                            <p className="text-sm text-gray-400 mb-2">
+                              Code Resource:{" "}
+                              <a
+                                className="text-blue-400"
+                                href={subtopic.resource}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                              >
                                 {subtopic.resource}
-                              </a></p>
-                              <div dangerouslySetInnerHTML={{ __html: subtopic.content }}></div>
-                            </div>
-                          )}
-                        </div>
-                        <div className="mb-4">
-                          <h2 className="text-lg font-semibold mb-2">Key Points</h2>
-                          <ul className="list-disc list-inside text-gray-300 space-y-1">
-                            {subtopic.keyPoints.map((point: any, index: any) => (
-                              <li key={index}>{point}</li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div>
-                          <h2 className="text-lg font-semibold mb-2">Practice Projects</h2>
-                          <ul className="list-disc list-inside text-gray-300 space-y-1">
-                            {subtopic.practiceProjects.map((project: any, index: any) => (
-                              <li key={index}>{project}</li>
-                            ))}
-                          </ul>
-                        </div>
+                              </a>
+                            </p>
+                            <div
+                              dangerouslySetInnerHTML={{
+                                __html: subtopic.content,
+                              }}
+                            ></div>
+                          </div>
+                        )}
                       </div>
-                    ))}
+                      <div className="mb-4">
+                        <h2 className="text-lg font-semibold mb-2">
+                          Key Points
+                        </h2>
+                        <ul className="list-disc list-inside text-gray-300 space-y-1">
+                          {subtopic.keyPoints.map((point: any, index: any) => (
+                            <li key={index}>{point}</li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div>
+                        <h2 className="text-lg font-semibold mb-2">
+                          Practice Projects
+                        </h2>
+                        <ul className="list-disc list-inside text-gray-300 space-y-1">
+                          {subtopic.practiceProjects.map(
+                            (project: any, index: any) => (
+                              <li key={index}>{project}</li>
+                            )
+                          )}
+                        </ul>
+                      </div>
+                    </div>
+                  ))}
                 </div>
 
                 <div className="mt-10 pt-6 border-t border-gray-700 flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <button className={`w-full sm:w-auto inline-flex items-center justify-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white transition-colors ${skill.roadMap[0].isCompleted ? 'bg-gray-600 hover:bg-gray-500' : 'bg-green-600 hover:bg-green-700'}`}>
-                        {skill.roadMap[0].isCompleted ? <CheckCircle className="mr-2 h-5 w-5" /> : null}
-                        {skill.roadMap[0].isCompleted ? 'Marked as Done' : 'Mark as Done'}
-                    </button>
+                  <button
+                    className={`w-full sm:w-auto inline-flex items-center justify-center px-6 py-2.5 border border-transparent text-sm font-medium rounded-md shadow-sm text-white transition-colors ${
+                      skill.roadMap[0].isCompleted
+                        ? "bg-gray-600 hover:bg-gray-500"
+                        : "bg-green-600 hover:bg-green-700"
+                    }`}
+                  >
+                    {skill.roadMap[0].isCompleted ? (
+                      <CheckCircle className="mr-2 h-5 w-5" />
+                    ) : null}
+                    {skill.roadMap[0].isCompleted
+                      ? "Marked as Done"
+                      : "Mark as Done"}
+                  </button>
                 </div>
               </div>
             </main>
-
             {/* AI Chat Area (Right) */}
-            <aside className="w-full md:w-96 lg:w-[420px] bg-gray-800 border-l border-gray-700 flex flex-col flex-shrink-0 max-h-full"> {/* Fixed width, flex column */}
+            <aside className="w-full md:w-96 lg:w-[420px] bg-gray-800 border-l border-gray-700 flex flex-col flex-shrink-0 max-h-full">
+              {" "}
+              {/* Fixed width, flex column */}
               <div className="p-4 border-b border-gray-700 flex items-center flex-shrink-0">
                 <MessageSquare className="h-6 w-6 text-blue-400 mr-3" />
                 <h2 className="text-lg font-semibold">AI Instructor</h2>
               </div>
               {/* Chat Messages */}
-              <div ref={chatContainerRef} className="flex-grow overflow-y-auto p-4 space-y-4">
+              <div
+                ref={chatContainerRef}
+                className="flex-grow overflow-y-auto p-4 space-y-4"
+              >
                 {chatMessages.map((msg, index) => (
-                  <div key={index} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[80%] p-3 rounded-xl ${msg.sender === 'user' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-gray-700 text-gray-200 rounded-bl-none'}`}>
+                  <div
+                    key={index}
+                    className={`flex ${
+                      msg.sender === "user" ? "justify-end" : "justify-start"
+                    }`}
+                  >
+                    <div
+                      className={`max-w-[80%] p-3 rounded-xl ${
+                        msg.sender === "user"
+                          ? "bg-blue-600 text-white rounded-br-none"
+                          : "bg-gray-700 text-gray-200 rounded-bl-none"
+                      }`}
+                    >
                       <p className="text-sm">{msg.text}</p>
                     </div>
                   </div>
                 ))}
                 {isAiTyping && (
-                    <div className="flex justify-start">
-                        <div className="max-w-[80%] p-3 rounded-xl bg-gray-700 text-gray-200 rounded-bl-none">
-                            <p className="text-sm flex items-center">
-                                <Loader2 className="h-4 w-4 animate-spin mr-2" /> AI is typing...
-                            </p>
-                        </div>
+                  <div className="flex justify-start">
+                    <div className="max-w-[80%] p-3 rounded-xl bg-gray-700 text-gray-200 rounded-bl-none">
+                      <p className="text-sm flex items-center">
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" /> AI is
+                        typing...
+                      </p>
                     </div>
+                  </div>
                 )}
               </div>
               {/* Suggested Questions */}
-              {skill.roadMap[parseInt(level as string)].suggestedQuestions && skill.roadMap[0].suggestedQuestions.length > 0 && chatMessages.filter(m => m.sender === 'user').length < 2 && ( // Show initially or if user hasn't asked much
-                <div className="p-4 border-t border-gray-700 flex-shrink-0">
-                    <h4 className="text-xs text-gray-400 mb-2 font-medium">Some questions you might have:</h4>
+              {skill.roadMap[parseInt(level as string)].suggestedQuestions &&
+                skill.roadMap[0].suggestedQuestions.length > 0 &&
+                chatMessages.filter((m) => m.sender === "user").length < 2 && ( // Show initially or if user hasn't asked much
+                  <div className="p-4 border-t border-gray-700 flex-shrink-0">
+                    <h4 className="text-xs text-gray-400 mb-2 font-medium">
+                      Some questions you might have:
+                    </h4>
                     <div className="space-y-1.5">
-                        {skill.roadMap[0].suggestedQuestions.map((q: any, i: any) => (
-                            <button 
-                                key={i} 
-                                onClick={() => handleSuggestedQuestion(q)}
-                                className="w-full text-left text-xs p-2 bg-gray-700 hover:bg-gray-600 rounded-md text-blue-300 transition-colors flex items-center"
-                            >
-                                <HelpCircle className="h-3.5 w-3.5 mr-2 flex-shrink-0 text-gray-500"/> {q}
-                            </button>
-                        ))}
+                      {skill.roadMap[0].suggestedQuestions.map(
+                        (q: any, i: any) => (
+                          <button
+                            key={i}
+                            onClick={() => handleSuggestedQuestion(q)}
+                            className="w-full text-left text-xs p-2 bg-gray-700 hover:bg-gray-600 rounded-md text-blue-300 transition-colors flex items-center"
+                          >
+                            <HelpCircle className="h-3.5 w-3.5 mr-2 flex-shrink-0 text-gray-500" />{" "}
+                            {q}
+                          </button>
+                        )
+                      )}
                     </div>
-                </div>
-              )}
+                  </div>
+                )}
               {/* Chat Input */}
               <div className="p-4 border-t border-gray-700 bg-gray-800 flex-shrink-0 mb-20">
                 <div className="flex items-center space-x-2">
@@ -343,7 +494,7 @@ export default function TopicsStudyPage() {
                     type="text"
                     value={chatInput}
                     onChange={(e) => setChatInput(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                    onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
                     placeholder="Ask AI anything about the lesson..."
                     className="flex-1 p-2.5 bg-gray-700 border border-gray-600 rounded-lg placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
                   />
