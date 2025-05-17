@@ -28,167 +28,61 @@ import {
 import DashLayout from '@/layout/DashLayout';
 import dummy_skills from '@/lib/dummy_datas/db_overview';
 import { useTopicStudy } from '@/hooks/generateTopicStudy';
+import { createClient } from '@supabase/supabase-js';
+import { db } from '@/lib/db';
+import { genratedData, skills } from '@/lib/db/schema';
+import { eq, inArray } from 'drizzle-orm';
 
 interface ChatMessage {
   sender: 'user' | 'ai';
   text: string;
 }
 
-// const dummyUserSkills: Skill[] = [
-//   {
-//     id: 'skill_uuid_1',
-//     name: 'Python Programming',
-//     description: 'Master the fundamentals of Python...',
-//     userStyle: 'Visual Learner, Prefers Practical Examples',
-//     roadMap: {
-//       topic: 'Python Basics',
-//       description: 'Learn the basics of Python programming',
-//       levels: [
-//         {
-//           level: 1,
-//           isCompleted: true,
-//           title: 'Python Basics: Variables & Data Types',
-//           description: 'Learn about Python variables and data types',
-//           subtopics: [
-//             {
-//               name: 'Understanding core data types',
-//               tasks: [
-//                 {
-//                   type: 'video',
-//                   title: 'Understanding Variables in Python',
-//                   url: 'https://example.com/video1',
-//                   content: `
-//                     <p class="mb-4">In Python, a variable is a named location used to store data in the memory. It is helpful to think of variables as a container that holds data which can be changed later throughout programming.</p>
-//                     <p class="mb-2"><strong>Key Concepts:</strong></p>
-//                     <ul class="list-disc list-inside mb-4 pl-4 text-gray-300">
-//                       <li>Variables are created when you first assign a value to them.</li>
-//                       <li>Python is dynamically typed, so you don't need to declare the type of a variable.</li>
-//                       <li>Variable names can be short (like x and y) or more descriptive (age, carname, total_volume).</li>
-//                     </ul>
-//                     <p class="mb-2"><strong>Example:</strong></p>
-//                     <pre class="bg-gray-900 p-3 rounded-md text-sm overflow-x-auto"><code class="language-python">
-// # Assigning values to variables
-// x = 5             # x is of type int
-// name = "John"     # name is of type str
-// pi = 3.14         # pi is of type float
-// is_learning = True # is_learning is of type bool
+interface SubTopic {
+  id: string;
+  type: 'video' | 'article' | 'code';
+  title: string;
+  content: string;
+  resource: string;
+  estimatedTime: string;
+  practiceProjects: string[];
+  keyPoints: string[];
+  isCompleted?: boolean;
+  suggestedQuestions?: string[];
+}
 
-// print(x)
-// print(name)
-// print(pi)
-// print(is_learning)
-//                     </code></pre>
-//                     <p className="mt-4">Try running this code in your Python environment to see the output!</p>
-//                   `,
-//                   isCompleted: true,
-//                   estimatedTime: '15 mins',
-//                   suggestedQuestions: [
-//                     "What are naming conventions for Python variables?",
-//                     "How is Python's dynamic typing different from static typing?",
-//                     "Can I change the type of a variable in Python?"
-//                   ]
-//                 },
-//                 {
-//                   type: 'quiz',
-//                   title: 'Data Types Quiz',
-//                   content: 'Identify data types',
-//                   isCompleted: true,
-//                   points: 90,
-//                   estimatedTime: '10 mins'
-//                 }
-//               ]
-//             }
-//           ]
-//         },
-//         {
-//           level: 2,
-//           isCompleted: false,
-//           title: 'Control Flow: Loops & Conditionals',
-//           description: 'Learn to control program execution with loops and conditionals',
-//           subtopics: [
-//             {
-//               name: 'Conditional Statements',
-//               tasks: [
-//                 {
-//                   type: 'video',
-//                   title: 'Mastering Conditional Statements (if/else)',
-//                   url: 'https://example.com/video2',
-//                   content: `
-//                     <p class="mb-4">Conditional statements allow your program to make decisions and execute different blocks of code based on whether a condition is true or false.</p>
-//                     <p class="mb-2"><strong>The <code>if</code> statement:</strong></p>
-//                     <p class="mb-4">Used to execute a block of code only if a specified condition is true.</p>
-//                     <pre class="bg-gray-900 p-3 rounded-md text-sm"><code class="language-python">
-// a = 33
-// b = 200
-// if b > a:
-//   print("b is greater than a") # This will be printed
-//                     </code></pre>
-//                     <p class="mt-4 mb-2"><strong>The <code>elif</code> keyword:</strong></p>
-//                     <p class="mb-4">Python's way of saying "if the previous conditions were not true, then try this condition".</p>
-//                     <p class="mt-4 mb-2"><strong>The <code>else</code> keyword:</strong></p>
-//                     <p class="mb-4">Catches anything which isn't caught by the preceding conditions.</p>
-//                     <pre class="bg-gray-900 p-3 rounded-md text-sm"><code class="language-python">
-// a = 200
-// b = 33
-// if b > a:
-//   print("b is greater than a")
-// elif a == b:
-//   print("a and b are equal")
-// else:
-//   print("a is greater than b") # This will be printed
-//                     </code></pre>
-//                   `,
-//                   isCompleted: false,
-//                   estimatedTime: '20 mins',
-//                   suggestedQuestions: [
-//                     "What is the difference between 'if' and 'elif'?",
-//                     "Can I have multiple 'elif' statements?",
-//                     "What are nested conditional statements?"
-//                   ]
-//                 },
-//                 {
-//                   type: 'practice',
-//                   title: 'Logic Gate Simulator',
-//                   content: 'Logic Gate Simulator',
-//                   isCompleted: true,
-//                   points: 80,
-//                   estimatedTime: '25 mins'
-//                 },
-//                 {
-//                   type: 'code',
-//                   title: 'Simple Calculator Challenge',
-//                   content: 'Write a simple calculator...',
-//                   isCompleted: false,
-//                   points: 0,
-//                   estimatedTime: '30 mins'
-//                 }
-//               ]
-//             }
-//           ]
-//         }
-//       ],
-//       completion_rewards: {
-//         badge: 'Python Programming Master',
-//         level_up_message: 'Congratulations on mastering Python Programming!',
-//         final_certificate: true
-//       }
-//     }
-//   }
-// ];
+interface Topic {
+  id: string;
+  title: string;
+  description: string;
+  subTopics: SubTopic[];
+}
 
-// UserAvatar Component
+interface Level {
+  id: string;
+  level: number;
+  title: string;
+  description: string;
+  isCompleted: boolean;
+  suggestedQuestions: string[];
+  topics: Topic[];
+}
 
+interface Skill {
+  id: string;
+  name: string;
+  description: string;
+  roadMap: Level[];
+}
 
 export default function TopicsStudyPage() {
   const router = useRouter();
   const params = useParams();
-  const skillid = params.skillid as string;
-  const level = params.level as string;
-  const topicid = params.topicid as string;
+  const { skillid, level, topicid } = params;
 
-  const [skill, setSkill] = useState<any>();
-  const [currentLevel, setCurrentLevel] = useState<any>();
-  const [subTopics, setSubTopics] = useState<any>();
+  const [skill, setSkill] = useState<Skill | null>(null);
+  const [currentLevel, setCurrentLevel] = useState<Level | null>(null);
+  const [subTopics, setSubTopics] = useState<SubTopic[] | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [chatInput, setChatInput] = useState('');
@@ -199,39 +93,69 @@ export default function TopicsStudyPage() {
   
 
   useEffect(() => {
-    if (skillid && level && topicid) {
-      console.log(topicid);
-      console.log(skillid);
-      console.log(level);
-      setIsLoading(true);
-      // Simulate API call
-      setTimeout(() => {
-        // const foundSkill = dummyUserSkills.find(s => s.id === skillid);
-        const foundSkill = dummy_skills[0];
-        if (foundSkill) {
-          setSkill(foundSkill);
-          // const foundLevel = foundSkill.roadMap.levels.find(l => l.level === parseInt(level));
-          const foundLevel = foundSkill.roadMap[0];
-          if (foundLevel) {
-            setCurrentLevel(foundLevel);
-            const foundSubtopics = foundLevel.topics[0].subTopics
-            if (foundSubtopics) {
-              setSubTopics(foundSubtopics);
-              console.log(foundSubtopics);
-              setChatMessages([
-                { sender: 'ai' as const, text: `Hello! I'm your AI Instructor for "${foundSubtopics[0].title}". How can I help you today?` }
-              ]);
-            } else {
-              setSubTopics(null);
-            }
-          } else {
-            setCurrentLevel(null);
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+
+        // 1. Fetch skill data from skills table
+        const skillData = await db.query.skills.findFirst({
+          where: eq(skills.id, skillid as string),
+        });
+
+        if (!skillData) throw new Error('Skill not found');
+
+        setSkill(skillData as unknown as Skill);
+        // console.log("skillData", skillData);
+
+        // 2. Find the current level
+        const foundLevel = skillData.roadMap?.find((l: any) => l.level === parseInt(level as string));
+        if (!foundLevel) throw new Error('Level not found');
+        setCurrentLevel(foundLevel as unknown as Level);
+        // console.log("foundLevel", foundLevel);
+
+        // console.log("topicid", topicid);
+
+        // 3. Find the current topic
+        const foundTopic = foundLevel?.topics.find((t: any) => t.id === parseInt(topicid as string));
+        if (!foundTopic) throw new Error('Topic not found');
+        // console.log("foundTopic", foundTopic);
+        // console.log("foundTopic.subTopics", foundTopic.subTopics);
+
+        // 4. Fetch subtopics data from generatedData table
+        const generatedData = await db.query.genratedData.findFirst({
+          where: eq(genratedData.topicId, foundTopic.id),
+        });
+        console.log("generatedData", generatedData?.data);
+
+        if (!generatedData) throw new Error('Generated data not found');
+
+        // // 5. Map the generated data to the subtopics structure
+        // const mappedSubTopics = foundTopic.subTopics.map((st: any) => {
+        //   const generatedContent = generatedData.find(gd => gd.id === st.id);
+        //   return {
+        //     ...st,
+        //     ...generatedContent
+        //   };
+        // });
+
+        setSubTopics(generatedData?.data as unknown as SubTopic[]);
+        setChatMessages([
+          { 
+            sender: 'ai', 
+            text: `Hello! I'm your AI Instructor for "${(generatedData?.data as any)[0]?.title || 'Demo Question!'}". How can I help you today?` 
           }
-        } else {
-          setSkill(null);
-        }
+        ]);
+
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        // Handle error appropriately
+      } finally {
         setIsLoading(false);
-      }, 700);
+      }
+    };
+
+    if (skillid && level && topicid) {
+      fetchData();
     }
   }, [skillid, level, topicid]);
 
@@ -396,7 +320,7 @@ export default function TopicsStudyPage() {
                 )}
               </div>
               {/* Suggested Questions */}
-              {skill.roadMap[0].suggestedQuestions && skill.roadMap[0].suggestedQuestions.length > 0 && chatMessages.filter(m => m.sender === 'user').length < 2 && ( // Show initially or if user hasn't asked much
+              {skill.roadMap[parseInt(level as string)].suggestedQuestions && skill.roadMap[0].suggestedQuestions.length > 0 && chatMessages.filter(m => m.sender === 'user').length < 2 && ( // Show initially or if user hasn't asked much
                 <div className="p-4 border-t border-gray-700 flex-shrink-0">
                     <h4 className="text-xs text-gray-400 mb-2 font-medium">Some questions you might have:</h4>
                     <div className="space-y-1.5">

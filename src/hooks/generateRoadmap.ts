@@ -63,8 +63,14 @@ export const useRoadmap = (): UseRoadmapReturn => {
             "suggestedQuestions": string[],
             "topics": [
               {
+                "id": string, // 0,1,2,3,4,5...
                 "name": string,
-                "subTopics": string[]
+                "subTopics": string[
+                {
+                  "name": string,
+                  "id": string; //default keep it null for now
+                }
+                ] // list subtopics headings that need to be studied under this topic
               }
             ]
           }
