@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 
 type LearningStyle = 'visual' | 'reading' | 'kinesthetic';
 type ResourceType = 'video' | 'article' | 'code';
@@ -21,13 +21,11 @@ interface GenerateStudyMaterialParams {
 }
 
 interface UseTopicStudyReturn {
-  isLoading: boolean;
-  error: string | null;
   generateStudyMaterial: (params: GenerateStudyMaterialParams) => Promise<any | null>;
 }
 
 const createPrompt = (topic: string, subtopics: string[], learningStyle: LearningStyle): string => {
-  return `Generate detailed study materials for the subtopics "${subtopics}".
+  return `Generate detailed study materials for the subtopics "${subtopics}" of the topic "${topic}".
       The user's learning style is ${learningStyle}.
 
       Include:
@@ -40,11 +38,12 @@ const createPrompt = (topic: string, subtopics: string[], learningStyle: Learnin
         {
             type: "video" | "article" | "code", (generate any one of them based on the user's learning style)
             title: string;
-            content: article (always) in html as a string | code (when needed) in html as a string;
-            resources: youtube url as a string | article url as a string;
+            content: article (always) in html as a string | code (when needed) in html as a string (do not include youtube videos in this section of the code);
+            resources: youtube url as a string and make sure to use embeded youtube videos for videos | article url as a string;
             estimatedTime: string;
             practiceProjects: string[];
             keyPoints: string[];
+            suggestedQuestions: string[];
         }
       ]
       Include tailwind css classes for styling the content.
@@ -53,44 +52,40 @@ const createPrompt = (topic: string, subtopics: string[], learningStyle: Learnin
       - reading: Provide comprehensive articles and documentation
       - kinesthetic: Emphasize practical exercises and code examples
 
-      Ensure all resources are high-quality and up-to-date.`;
+      Ensure all resources are high-quality and up-to-date. Return only raw JSON, no markdown or explanations.`;
 };
 
-export const useTopicStudy = (): UseTopicStudyReturn => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+const genAI = new GoogleGenAI({apiKey:process.env.NEXT_PUBLIC_GEMINI_API_KEY || ''});
 
+
+export const useTopicStudy = (): UseTopicStudyReturn => {
   const generateStudyMaterial = async ({
     topic,
     subtopics,
     learningStyle,
   }: GenerateStudyMaterialParams): Promise<any | null> => {
     try {
-      setIsLoading(true);
-      setError(null);
-
-      const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || '');
-      const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
-
-      const prompt = createPrompt(topic, subtopics, learningStyle);
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
-      
-      const studyData = JSON.parse(text);
+      const response = await genAI.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: createPrompt(topic, subtopics, learningStyle),
+      });
+      if (!response) {
+        console.error('No response from AI model');
+        return 'null';
+      }
+      const cleaned = response.text?.replace(/^```json/, '').replace(/^```/, '').replace(/```$/, '').trim();
+      console.log(cleaned);
+      const studyData = JSON.parse(cleaned || '');
+      console.log(studyData);
       return studyData.data as any;
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to generate study materials';
-      setError(errorMessage);
+      console.error('Error generating study materials:', errorMessage);
       return null;
-    } finally {
-      setIsLoading(false);
     }
   };
 
   return {
-    isLoading,
-    error,
     generateStudyMaterial,
   };
 };

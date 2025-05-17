@@ -190,11 +190,11 @@ export default function RoadmapPage() {
                                 `/skill/${skillid}/${level.level}/${topic.id}`
                               )
                             }
-                            disabled={
-                              !level.isCompleted &&
-                              index > 0 &&
-                              !skill.roadMap[index - 1]?.isCompleted
-                            }
+                            // disabled={
+                            //   !level.isCompleted &&
+                            //   index > 0 &&
+                            //   !skill.roadMap[index - 1]?.isCompleted
+                            // }
                             className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700 transition-colors ${topic.isGenerated ? "bg-green-500 hover:bg-green-600" : "bg-blue-600 hover:bg-blue-700"}`}
                           >
                             {topic.isGenerated ? "Continue Learning" : "Start Learning"}

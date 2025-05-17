@@ -38,4 +38,9 @@ code{
   border-radius: 5px;
   font-size: 0.8rem;
   font-family: monospace;
+  text-wrap: wrap;
+}
+
+.content-container{
+  background-color: #1E2938 !important;
 }

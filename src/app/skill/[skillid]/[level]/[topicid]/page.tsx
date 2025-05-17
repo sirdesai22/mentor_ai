@@ -31,7 +31,7 @@ import { useTopicStudy } from "@/hooks/generateTopicStudy";
 import { createClient } from "@supabase/supabase-js";
 import { db } from "@/lib/db";
 import { genratedData, skills } from "@/lib/db/schema";
-import { eq, inArray } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { useRefetchDB } from "@/hooks/refetchDB";
 
 interface ChatMessage {
@@ -90,16 +90,15 @@ export default function TopicsStudyPage() {
   const [isAiTyping, setIsAiTyping] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  const {
-    generateStudyMaterial,
-    isLoading: isStudyLoading,
-    error: studyError,
-  } = useTopicStudy();
+  const { generateStudyMaterial } = useTopicStudy();
   const { refetchAllData } = useRefetchDB();
   useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
+
+        //check if the topic is already generated and is in zustand store
+        // const { data: skillData } = useSkillStore.getState().getSkill(skillid as string);
 
         // 1. Fetch skill data from skills table
         const skillData = await db.query.skills.findFirst({
@@ -143,27 +142,37 @@ export default function TopicsStudyPage() {
 
           setSubTopics(generatedData as any);
           //set the isGenerated to true and data to the foundTopic in DB
-          await db
-            .update(skills)
-            .set({
-              roadMap: skillData?.roadMap?.map((l: any) =>
-                l.id === parseInt(level as string)
-                  ? {
-                      ...l,
-                      topics: l.topics.map((t: any) =>
-                        t.id === parseInt(topicid as string)
-                          ? {
-                              ...t,
-                              isGenerated: true,
-                              subTopics: generatedData,
-                            }
-                          : t
-                      ),
-                    }
-                  : l
-              ),
-            })
-            .where(eq(skills.id, skillid as string));
+          const updatedRoadMap = skillData?.roadMap?.map((lvl: any) =>
+            lvl.level === parseInt(level as string)
+              ? {
+                  ...lvl,
+                  topics: lvl.topics.map((t: any) =>
+                    t.id === parseInt(topicid as string)
+                      ? {
+                          ...t,
+                          isGenerated: true,
+                          subTopics: generatedData,
+                        }
+                      : t
+                  ),
+                }
+              : lvl
+          );
+          console.log("updatedRoadMap", updatedRoadMap);
+
+          try {
+            // const 
+            const updatedSkill = await db
+              .update(skills)
+              .set({
+                roadMap: updatedRoadMap,
+              })
+              .where(eq(skills.id, skillid as string))
+              .returning();
+            console.log("updatedSkill", updatedSkill);
+          } catch (error) {
+            console.error("Error updating skill:", error);
+          }
 
           refetchAllData();
           console.log("updated foundTopic", foundTopic);
@@ -240,7 +249,7 @@ export default function TopicsStudyPage() {
     setChatInput(question);
   };
 
-  if (isLoading || isStudyLoading) {
+  if (isLoading) {
     return (
       <div className="font-inter bg-gray-900 text-white min-h-screen flex items-center justify-center">
         <Loader2 className="h-12 w-12 animate-spin text-blue-500" />
@@ -328,12 +337,13 @@ export default function TopicsStudyPage() {
                         {subtopic.type === "video" && (
                           <div className="mb-4">
                             <div
+                              className="content-container"
                               dangerouslySetInnerHTML={{
                                 __html: subtopic.content,
                               }}
                             ></div>
                             <iframe
-                              src={subtopic.resource}
+                              src={subtopic.resources}
                               className="w-full h-96 rounded-lg mt-2"
                             />
                           </div>
@@ -344,14 +354,15 @@ export default function TopicsStudyPage() {
                               Article Resource:{" "}
                               <a
                                 className="text-blue-400"
-                                href={subtopic.resource}
+                                href={subtopic.resources}
                                 target="_blank"
                                 rel="noopener noreferrer"
                               >
-                                {subtopic.resource}
+                                {subtopic.resources}
                               </a>
                             </p>
                             <div
+                              className="content-container"
                               dangerouslySetInnerHTML={{
                                 __html: subtopic.content,
                               }}
@@ -364,14 +375,15 @@ export default function TopicsStudyPage() {
                               Code Resource:{" "}
                               <a
                                 className="text-blue-400"
-                                href={subtopic.resource}
+                                href={subtopic.resources}
                                 target="_blank"
                                 rel="noopener noreferrer"
                               >
-                                {subtopic.resource}
+                                {subtopic.resources}
                               </a>
                             </p>
                             <div
+                              className="content-container"
                               dangerouslySetInnerHTML={{
                                 __html: subtopic.content,
                               }}
@@ -466,7 +478,7 @@ export default function TopicsStudyPage() {
                 )}
               </div>
               {/* Suggested Questions */}
-              {skill.roadMap[parseInt(level as string)].suggestedQuestions &&
+              {skill.roadMap[parseInt(level as string)-1].suggestedQuestions &&
                 skill.roadMap[0].suggestedQuestions.length > 0 &&
                 chatMessages.filter((m) => m.sender === "user").length < 2 && ( // Show initially or if user hasn't asked much
                   <div className="p-4 border-t border-gray-700 flex-shrink-0">
