@@ -30,114 +30,6 @@ import { eq } from 'drizzle-orm';
 import { useUserStore } from '@/store/userStore';
 import { useSkillsStore } from '@/store/skillsStore';
 
-const userSkillsData = [
-  {
-    id: "1",
-    name: "Machine Learning Fundamentals",
-    description: "Learn the basics of machine learning and AI",
-    userStyle: "Visual Learner",
-    roadMap: [
-      {
-        level: 1,
-        title: "Introduction to ML",
-        subTopic: "Basic Concepts",
-        isCompleted: false,
-        tasks: [
-          {
-            type: "video",
-            content: "Introduction to Machine Learning",
-            isCompleted: false,
-            points: 0
-          },
-          {
-            type: "quiz",
-            content: "Basic ML Concepts Quiz",
-            isCompleted: false,
-            points: 0
-          }
-        ],
-        progress: {
-          skills_mastered: 35,
-          total_hours: 12,
-          total_skills: 10,
-          current_skill: 3
-        }
-      }
-    ],
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: "2",
-    name: "Python Programming",
-    description: "Master Python programming from basics to advanced",
-    userStyle: "Hands-on Learner",
-    roadMap: [
-      {
-        level: 2,
-        title: "Advanced Python",
-        subTopic: "Object-Oriented Programming",
-        isCompleted: false,
-        tasks: [
-          {
-            type: "project",
-            content: "Build a Python Web App",
-            isCompleted: false,
-            points: 0
-          },
-          {
-            type: "exercise",
-            content: "OOP Practice Problems",
-            isCompleted: false,
-            points: 0
-          }
-        ],
-        progress: {
-          skills_mastered: 65,
-          total_hours: 25,
-          total_skills: 15,
-          current_skill: 10
-        }
-      }
-    ],
-    createdAt: new Date().toISOString()
-  },
-  {
-    id: "3",
-    name: "Web Development",
-    description: "Full-stack web development with modern technologies",
-    userStyle: "Project-based Learner",
-    roadMap: [
-      {
-        level: 1,
-        title: "Frontend Development",
-        subTopic: "React Basics",
-        isCompleted: false,
-        tasks: [
-          {
-            type: "tutorial",
-            content: "React Components and Props",
-            isCompleted: false,
-            points: 0
-          },
-          {
-            type: "project",
-            content: "Build a Todo App",
-            isCompleted: false,
-            points: 0
-          }
-        ],
-        progress: {
-          skills_mastered: 20,
-          total_hours: 8,
-          total_skills: 12,
-          current_skill: 2
-        }
-      }
-    ],
-    createdAt: new Date().toISOString()
-  }
-]
-
 // Main Dashboard Component
 export default function DashboardPage() {
   const { user } = useUser();
@@ -164,8 +56,8 @@ export default function DashboardPage() {
             occupation: userDataDB.occupation,
             goals: userDataDB.goals,
             interests: userDataDB.interests,
-            createdAt: userDataDB.createdAt,
-            updatedAt: userDataDB.updatedAt
+            createdAt: userDataDB.createdAt.toISOString(),
+            updatedAt: userDataDB.updatedAt.toISOString()
           });
         }
       } catch (error) {

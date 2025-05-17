@@ -10,8 +10,8 @@ interface User {
   occupation: string | null
   goals: string | null
   interests: string[] | null
-  createdAt: Date
-  updatedAt: Date
+  createdAt: string
+  updatedAt: string
 }
 
 interface UserState {

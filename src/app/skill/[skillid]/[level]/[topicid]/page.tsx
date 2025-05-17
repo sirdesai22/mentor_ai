@@ -32,6 +32,7 @@ import { createClient } from "@supabase/supabase-js";
 import { db } from "@/lib/db";
 import { genratedData, skills } from "@/lib/db/schema";
 import { eq, inArray } from "drizzle-orm";
+import { useRefetchDB } from "@/hooks/refetchDB";
 
 interface ChatMessage {
   sender: "user" | "ai";
@@ -94,7 +95,7 @@ export default function TopicsStudyPage() {
     isLoading: isStudyLoading,
     error: studyError,
   } = useTopicStudy();
-
+  const { refetchAllData } = useRefetchDB();
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -164,6 +165,7 @@ export default function TopicsStudyPage() {
             })
             .where(eq(skills.id, skillid as string));
 
+          refetchAllData();
           console.log("updated foundTopic", foundTopic);
           setChatMessages([
             {
