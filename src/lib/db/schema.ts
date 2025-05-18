@@ -36,11 +36,3 @@ export const skills = pgTable("skills", {
   }>>(),
   createdAt: timestamp("created_at").defaultNow(),
 });
-
-export const genratedData = pgTable("genrated_data", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  skillId: uuid("skill_id").references(() => skills.id),
-  topicId: text("topic_id"),
-  data: jsonb("data"),
-  createdAt: timestamp("created_at").defaultNow(),
-});

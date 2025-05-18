@@ -42,12 +42,12 @@ export const useRoadmap = (): UseRoadmapReturn => {
       
       Format the response as a JSON object with the following structure:
       data:{
-        "name": string,
+        "name": string, //give a name to the skill - fun/creative/game-like (keep it short and concise)
         "description": string,
         "roadMap": [
           {
             "level": number,
-            "isCompleted": boolean, //default keep it false for now
+            "isCompleted": false, //default keep it false for now
             "title": string,
             "description": string,
             "suggestedQuestions": string[],
@@ -55,8 +55,8 @@ export const useRoadmap = (): UseRoadmapReturn => {
               {
                 "id": string, // 0,1,2,3,4,5...
                 "name": string,
-                "isCompleted": boolean, //default keep it false for now
-                "isGenerated": boolean, //default keep it false for now
+                "isCompleted": false, //default keep it false for now
+                "isGenerated": false, //default keep it false for now
                 "subTopics": string[] //list of subtopics that need to be studied under this topic
               }
             ]

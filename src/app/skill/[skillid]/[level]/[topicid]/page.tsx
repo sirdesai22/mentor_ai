@@ -30,7 +30,7 @@ import dummy_skills from "@/lib/dummy_datas/db_overview";
 import { useTopicStudy } from "@/hooks/generateTopicStudy";
 import { createClient } from "@supabase/supabase-js";
 import { db } from "@/lib/db";
-import { genratedData, skills } from "@/lib/db/schema";
+import { skills } from "@/lib/db/schema";
 import { and, eq, inArray } from "drizzle-orm";
 import { useRefetchDB } from "@/hooks/refetchDB";
 
@@ -121,9 +121,10 @@ export default function TopicsStudyPage() {
         // console.log("topicid", topicid);
 
         // 3. Find the current topic
-        const foundTopic = foundLevel?.topics.find(
-          (t: any) => t.id === parseInt(topicid as string)
-        );
+        const foundTopic = foundLevel?.topics[parseInt(topicid as string)]
+        // .find(
+        //   (t: any) => t.id === parseInt(topicid as string)
+        // );
         if (!foundTopic) throw new Error("Topic not found");
         // console.log("foundTopic", foundTopic);
         // console.log("foundTopic.subTopics", foundTopic.subTopics);
@@ -147,7 +148,7 @@ export default function TopicsStudyPage() {
               ? {
                   ...lvl,
                   topics: lvl.topics.map((t: any) =>
-                    t.id === parseInt(topicid as string)
+                    t.id === topicid as string
                       ? {
                           ...t,
                           isGenerated: true,

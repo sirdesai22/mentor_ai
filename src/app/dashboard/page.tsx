@@ -45,6 +45,7 @@ export default function DashboardPage() {
         const userDataDB = await db.query.users.findFirst({
           where: eq(users.email, user?.emailAddresses[0].emailAddress || ''),
         });
+        console.log("userDataDB", userDataDB);
         
         if (userDataDB) {
           setUser({
@@ -82,16 +83,17 @@ export default function DashboardPage() {
         const skillsDataDB = await db.query.skills.findMany({
           where: eq(skills.userId, userData?.id || ''),
         });
+        // console.log("skillsDataDB", skillsDataDB);
         setSkills(skillsDataDB as any);
       } catch (error) {
         console.error('Error fetching skills data:', error);
       }
     };
     
-    if (userData?.id && !skillsData) {
-      console.log("Fetching skills data from DB");
+    // if (userData?.id && !skillsData) {
+      // console.log("Fetching skills data from DB");
       fetchSkillsData();
-    }
+    // }
   }, [userData?.id]);
 
   if (!user) {
@@ -129,7 +131,7 @@ export default function DashboardPage() {
                   <div className="flex items-center justify-between mb-4">
                     <h2 className="text-xl font-semibold text-blue-400 flex items-center">
                       <PlayCircle className="h-6 w-6 mr-2" />
-                      {skill.name}
+                      {skill.name.length > 25 ? skill.name.slice(0, 25) + '...' : skill.name}
                     </h2>
                     <Link href={`/skill/${skill.id}`} passHref>
                       <p className="text-sm text-blue-500 hover:underline flex items-center">

@@ -111,7 +111,7 @@ export default function NewSkillPage() {
         selectedAnswers[2] +
         " User's time commitment: " +
         selectedAnswers[3];
-      const roadmap = await generateRoadmap(newSkill.name, userPreferences);
+      const roadmap = await generateRoadmap(newSkill, userPreferences.toString());
       console.log(roadmap);
 
       // TODO: Add skill to DB
@@ -148,6 +148,7 @@ export default function NewSkillPage() {
               request and prepare some initial questions to tailor your learning
               game.
             </p>
+            <button onClick={() => handleGenerateSkill("skillInput")}>Generate</button>
             <form onSubmit={handleSkillSubmit}>
               <textarea
                 value={skillInput}
