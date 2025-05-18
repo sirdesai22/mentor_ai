@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from "@google/genai";
 
 interface Topic {
   name: string;
@@ -25,34 +24,24 @@ interface Roadmap {
 }
 
 interface UseRoadmapReturn {
-  roadmap: Roadmap | null;
-  isLoading: boolean;
-  error: string | null;
-  generateRoadmap: (skill: string) => Promise<void>;
+  generateRoadmap: (skill: string, userDetails: string) => Promise<any>;
 }
 
+const genAI = new GoogleGenAI({
+  apiKey: process.env.NEXT_PUBLIC_GEMINI_API_KEY || "",
+});
+
 export const useRoadmap = (): UseRoadmapReturn => {
-  const [roadmap, setRoadmap] = useState<Roadmap | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const generateRoadmap = async (skill: string) => {
+  const generateRoadmap = async (skill: string, userDetails: string) => {
     try {
-      setIsLoading(true);
-      setError(null);
-
-      // Initialize Gemini API
-      const genAI = new GoogleGenerativeAI(process.env.NEXT_PUBLIC_GEMINI_API_KEY || '');
-      const model = genAI.getGenerativeModel({ model: 'gemini-pro' });
-
-      const prompt = `Create a detailed learning roadmap for ${skill}. Include:
+      const prompt = `Create a detailed learning roadmap for ${skill}. Use the following user details to create the roadmap:${userDetails}
       1. A structured list of steps to master this skill
-      2. Each step should have a title, description, and recommended resources
-      3. Estimated time to complete the entire roadmap
-      4. Overall difficulty level (Beginner/Intermediate/Advanced)
+      2. The roadmap should be in a structured format with levels and topics
+      3. The roadmap should be in a JSON format
+      4. The roadmap should cover all the topics that are required to master the skill
       
       Format the response as a JSON object with the following structure:
-      {
+      data:{
         "name": string,
         "description": string,
         "roadMap": [
@@ -68,32 +57,44 @@ export const useRoadmap = (): UseRoadmapReturn => {
                 "name": string,
                 "isCompleted": boolean, //default keep it false for now
                 "isGenerated": boolean, //default keep it false for now
-                "subTopics": [] //list of subtopics ids that need to be studied under this topic
+                "subTopics": string[] //list of subtopics that need to be studied under this topic
               }
             ]
           }
         ],
         "estimatedTime": string,
-      }`;
+      }
+        
+      Ensure all resources are high-quality and up-to-date. Return only raw JSON, no markdown or explanations. Keep the data in context of the skill ${skill} and do not halucinate any data.`;
 
-      const result = await model.generateContent(prompt);
-      const response = await result.response;
-      const text = response.text();
-      
-      // Parse the JSON response
-      const roadmapData = JSON.parse(text) as Roadmap;
-      setRoadmap(roadmapData);
+      const response = await genAI.models.generateContent({
+        model: "gemini-2.0-flash",
+        contents: prompt,
+      });
+      if (!response) {
+        console.error("No response from AI model");
+        return "null";
+      }
+      const cleaned = response.text
+        ?.replace(/^```json/, "")
+        .replace(/^```/, "")
+        .replace(/```$/, "")
+        .trim();
+      console.log(cleaned);
+      const roadmapData = JSON.parse(cleaned || "");
+      console.log(roadmapData);
+      return roadmapData.data as any;
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to generate roadmap');
-    } finally {
-      setIsLoading(false);
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Failed to generate study materials";
+      console.error("Error generating study materials:", errorMessage);
+      return null;
     }
   };
 
   return {
-    roadmap,
-    isLoading,
-    error,
-    generateRoadmap,
+    generateRoadmap
   };
 };

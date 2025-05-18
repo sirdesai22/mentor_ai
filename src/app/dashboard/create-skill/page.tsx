@@ -1,6 +1,6 @@
-'use client'
-import Link from 'next/link';
-import { useState, useEffect } from 'react';
+"use client";
+import Link from "next/link";
+import { useState, useEffect } from "react";
 import {
   LayoutDashboard,
   BookOpen,
@@ -19,35 +19,60 @@ import {
   ArrowRight,
   CheckCircle,
   Loader2, // For loading states
-  PlayCircle
-} from 'lucide-react';
-import DashLayout from '@/layout/DashLayout';
+  PlayCircle,
+} from "lucide-react";
+import DashLayout from "@/layout/DashLayout";
+import { useRoadmap } from "@/hooks/generateRoadmap";
+import { useRouter } from "next/navigation";
+import { skills } from "@/lib/db/schema";
+import { db } from "@/lib/db";
+import { useUserStore } from "@/store/userStore";
 
 // Dummy MCQ data
 const dummyMCQs = [
   {
     id: 1,
     question: "What is your level of experience with this skill?",
-    options: ["I'm a beginner 🐣", "I have some knowledge 📘", "I'm an expert 🧠", "I'm a master 🏆"],
+    options: [
+      "I'm a beginner 🐣",
+      "I have some knowledge 📘",
+      "I'm an expert 🧠",
+      "I'm a master 🏆",
+    ],
   },
   {
     id: 2,
     question: "What is your preferred learning style?",
-    options: ["Watching videos 🎥", "Reading articles 📚", "Practicing questions ✍️", "Building projects 🛠️"],
+    options: [
+      "Watching videos 🎥",
+      "Practicing questions ✍️",
+      "Building projects 🛠️",
+      "Taking notes 📝",
+    ],
   },
   {
     id: 3,
     question: "How much time can you dedicate to learning this skill?",
-    options: ["15 minutes/day ⏱️", "30 minutes/day ⌛", "1 hour/day 🕒", "2+ hours/day 🕓"],
-  }
+    options: [
+      "15 minutes/day ⏱️",
+      "30 minutes/day ⌛",
+      "1 hour/day 🕒",
+      "2+ hours/day 🕓",
+    ],
+  },
 ];
 
 export default function NewSkillPage() {
-  const [skillInput, setSkillInput] = useState('');
-  const [pageState, setPageState] = useState('input'); // 'input', 'mcq', 'game_generation', 'game_ready'
+  const [skillInput, setSkillInput] = useState("");
+  const [pageState, setPageState] = useState("input"); // 'input', 'mcq', 'game_generation', 'game_ready'
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedAnswers, setSelectedAnswers] = useState<Record<number, string>>({});
+  const [selectedAnswers, setSelectedAnswers] = useState<
+    Record<number, string>
+  >({});
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const router = useRouter();
+  const { generateRoadmap } = useRoadmap();
+  const { user } = useUserStore();
   const handleSkillSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!skillInput.trim()) {
@@ -58,40 +83,60 @@ export default function NewSkillPage() {
     console.log(`User wants to learn: ${skillInput}`);
     // Simulate AI analysis
     setTimeout(() => {
-      setPageState('mcq');
+      setPageState("mcq");
       setIsLoading(false);
     }, 2000);
   };
 
   const handleAnswerSelect = (questionId: number, option: string) => {
-    setSelectedAnswers(prev => ({ ...prev, [questionId]: option }));
+    setSelectedAnswers((prev) => ({ ...prev, [questionId]: option }));
   };
 
   const handleNextQuestion = () => {
     if (currentQuestionIndex < dummyMCQs.length - 1) {
-      setCurrentQuestionIndex(prev => prev + 1);
+      setCurrentQuestionIndex((prev) => prev + 1);
     } else {
-      setPageState('game_generation');
+      setPageState("game_generation");
     }
   };
-  
-  const handleGenerateGame = () => {
-    setIsLoading(true);
-    // Simulate game generation
-    setTimeout(() => {
-        setPageState('game_ready');
+
+  const handleGenerateSkill = async (newSkill: any) => {
+    try {
+      setIsLoading(true);
+      // Simulate game generation
+      const userPreferences =
+        "User's level of experience: " +
+        selectedAnswers[1] +
+        " User's preferred learning style: " +
+        selectedAnswers[2] +
+        " User's time commitment: " +
+        selectedAnswers[3];
+      const roadmap = await generateRoadmap(newSkill.name, userPreferences);
+      console.log(roadmap);
+
+      // TODO: Add skill to DB
+      if (roadmap && user) {
+        const skill = await db.insert(skills).values({
+          name: roadmap.name,
+          description: roadmap.description,
+          roadMap: roadmap.roadMap,
+          userStyle: userPreferences,
+          userId: user.id,
+        });
+        console.log(skill);
+        setPageState("game_ready");
         setIsLoading(false);
-    }, 3000);
-    // TODO: Add game generation logic
-
-    // TODO: Add game to DB
-    
+        router.push("/dashboard/skills");
+      }
+    } catch (error) {
+      console.error(error);
+      setIsLoading(false);
+    }
   };
-
 
   const renderContent = () => {
     switch (pageState) {
-      case 'input':
+      case "input":
         return (
           <div className="bg-gray-800 shadow-xl rounded-xl p-6 md:p-8 max-w-2xl mx-auto">
             <div className="flex items-center mb-6">
@@ -99,7 +144,9 @@ export default function NewSkillPage() {
               <h2 className="text-2xl font-semibold">Define Your New Skill</h2>
             </div>
             <p className="text-gray-400 mb-6">
-              Tell us what you're eager to learn. Our AI will analyze your request and prepare some initial questions to tailor your learning game.
+              Tell us what you're eager to learn. Our AI will analyze your
+              request and prepare some initial questions to tailor your learning
+              game.
             </p>
             <form onSubmit={handleSkillSubmit}>
               <textarea
@@ -117,7 +164,8 @@ export default function NewSkillPage() {
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="animate-spin mr-2 h-5 w-5" /> Analyzing...
+                    <Loader2 className="animate-spin mr-2 h-5 w-5" />{" "}
+                    Analyzing...
                   </>
                 ) : (
                   <>
@@ -129,13 +177,16 @@ export default function NewSkillPage() {
           </div>
         );
 
-      case 'mcq':
+      case "mcq":
         const currentMCQ = dummyMCQs[currentQuestionIndex];
         return (
           <div className="bg-gray-800 shadow-xl rounded-xl p-6 md:p-8 max-w-3xl mx-auto">
             <div className="flex items-center mb-6">
               <HelpCircle className="h-8 w-8 text-green-400 mr-3" />
-              <h2 className="text-2xl font-semibold">Tell us about your skill: <span className="text-green-400">{skillInput}</span></h2>
+              <h2 className="text-2xl font-semibold">
+                Tell us about your skill:{" "}
+                <span className="text-green-400">{skillInput}</span>
+              </h2>
             </div>
             <p className="text-gray-400 mb-6">
               Answer this question to help us personalize your game.
@@ -152,75 +203,90 @@ export default function NewSkillPage() {
                     disabled={isLoading}
                     className={`flex items-center justify-center p-4 rounded-lg transition-all text-lg ${optionClass} disabled:opacity-70 disabled:cursor-not-allowed`}
                   >
-                   {option}
+                    {option}
                   </button>
                 );
               })}
             </div>
             <button
               onClick={handleNextQuestion}
-              disabled={selectedAnswers[currentMCQ.id] === undefined || isLoading}
+              disabled={
+                selectedAnswers[currentMCQ.id] === undefined || isLoading
+              }
               className="mt-8 w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-green-500 transition-colors duration-300 disabled:opacity-60"
             >
               {isLoading ? (
-                 <>
-                    <Loader2 className="animate-spin mr-2 h-5 w-5" /> Submitting...
-                  </>
+                <>
+                  <Loader2 className="animate-spin mr-2 h-5 w-5" />{" "}
+                  Submitting...
+                </>
               ) : (
-                 <>
-                    Next <ArrowRight className="ml-2 h-5 w-5" />
-                  </>
+                <>
+                  Next <ArrowRight className="ml-2 h-5 w-5" />
+                </>
               )}
             </button>
           </div>
         );
-      
-      case 'game_generation':
+
+      case "game_generation":
         return (
           <div className="bg-gray-800 shadow-xl rounded-xl p-6 md:p-8 max-w-2xl mx-auto text-center">
             <Gamepad2 className="h-16 w-16 text-purple-400 mx-auto mb-6 animate-pulse" />
-            <h2 className="text-2xl font-semibold mb-3">Preparing Your Learning Game!</h2>
+            <h2 className="text-2xl font-semibold mb-3">
+              Preparing Your Learning Game!
+            </h2>
             <p className="text-gray-400 mb-6">
-              Our AI is crafting a unique game for <strong className="text-purple-300">{skillInput}</strong> based on your responses. This might take a moment.
+              Our AI is crafting a unique game for{" "}
+              <strong className="text-purple-300">{skillInput}</strong> based on
+              your responses. This might take a moment.
             </p>
             <button
-                onClick={handleGenerateGame}
-                disabled={isLoading}
-                className="mt-6 w-full sm:w-auto flex justify-center items-center mx-auto py-3 px-6 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-purple-500 transition-colors duration-300 disabled:opacity-60"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="animate-spin mr-2 h-5 w-5" /> Generating Game...
-                  </>
-                ) : (
-                  <>
-                    Click to Finalize Game for 10 GP <Sparkles className="ml-2 h-5 w-5" />
-                  </>
-                )}
-              </button>
+              onClick={() => handleGenerateSkill(skillInput)}
+              disabled={isLoading}
+              className="mt-6 w-full sm:w-auto flex justify-center items-center mx-auto py-3 px-6 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-purple-500 transition-colors duration-300 disabled:opacity-60"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="animate-spin mr-2 h-5 w-5" /> Generating
+                  Game...
+                </>
+              ) : (
+                <>
+                  Click to Finalize Game for 10 GP{" "}
+                  <Sparkles className="ml-2 h-5 w-5" />
+                </>
+              )}
+            </button>
           </div>
         );
 
-    case 'game_ready':
+      case "game_ready":
         return (
           <div className="bg-gray-800 shadow-xl rounded-xl p-6 md:p-8 max-w-2xl mx-auto text-center">
             <Sparkles className="h-16 w-16 text-yellow-400 mx-auto mb-4" />
             <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-6" />
             <h2 className="text-2xl font-semibold mb-3">Your Game is Ready!</h2>
             <p className="text-gray-400 mb-6">
-              Your personalized learning game for <strong className="text-yellow-300">{skillInput}</strong> has been successfully generated.
+              Your personalized learning game for{" "}
+              <strong className="text-yellow-300">{skillInput}</strong> has been
+              successfully generated.
             </p>
             <button
-                onClick={() => alert(`Starting game for ${skillInput}!`)} // Placeholder action
-                className="mt-6 w-full sm:w-auto flex justify-center items-center mx-auto py-3 px-6 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-yellow-400 transition-colors duration-300"
-              >
-                Start Learning Game <PlayCircle className="ml-2 h-5 w-5" />
+              onClick={() => router.push("/dashboard/skills")} // Placeholder action
+              className="mt-6 w-full sm:w-auto flex justify-center items-center mx-auto py-3 px-6 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-yellow-400 transition-colors duration-300"
+            >
+              Start Learning Game <PlayCircle className="ml-2 h-5 w-5" />
             </button>
-             <button
-                onClick={() => { setPageState('input'); setSkillInput(''); setSelectedAnswers({}); }}
-                className="mt-4 w-full sm:w-auto flex justify-center items-center mx-auto py-2 px-6 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
-              >
-                Learn Another Skill
+            <button
+              onClick={() => {
+                setPageState("input");
+                setSkillInput("");
+                setSelectedAnswers({});
+              }}
+              className="mt-4 w-full sm:w-auto flex justify-center items-center mx-auto py-2 px-6 text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
+            >
+              Learn Another Skill
             </button>
           </div>
         );
@@ -232,12 +298,10 @@ export default function NewSkillPage() {
 
   return (
     <DashLayout>
-          {/* Page Content */}
-          <main className="flex-1 overflow-y-auto p-6 md:p-8 lg:p-10 bg-gray-900">
-            <div className="max-w-7xl mx-auto">
-              {renderContent()}
-            </div>
-          </main>
+      {/* Page Content */}
+      <main className="flex-1 overflow-y-auto p-6 md:p-8 lg:p-10 bg-gray-900">
+        <div className="max-w-7xl mx-auto">{renderContent()}</div>
+      </main>
     </DashLayout>
   );
 }

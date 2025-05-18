@@ -26,11 +26,13 @@ import {
   Code,
   Wrench,
 } from "lucide-react";
-import { useSkillsStore } from "@/store/skillsStore";
 import { dummy_roadmap } from "@/lib/dummy_datas/roadmap";
 // import dummy_skills from '@/lib/dummy_datas/db_overview';
 import { useTopicStudy } from "@/hooks/generateTopicStudy";
 import { useRefetchDB } from "@/hooks/refetchDB";
+import { skills } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
+import { db } from "@/lib/db";
 
 interface Skill {
   id: string;
@@ -65,28 +67,18 @@ export default function RoadmapPage() {
   const skillid = params.skillid as string;
   const [skill, setSkill] = useState<Skill | any>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { skills: skillsData } = useSkillsStore();
-  // const { refetchAllData } = useRefetchDB();
+
+  const fetchSkillData = async () => {
+    const data = await db.select().from(skills).where(eq(skills.id, skillid)).limit(1);
+    console.log("skillData", data[0]);
+    setSkill(data[0] as any);
+    setIsLoading(false);
+  }
 
   useEffect(() => {
-    // refetchAllData();
-    if (skillid) {
-      setIsLoading(true);
-      const skillData = skillsData?.find((s: any) => s.id === skillid);
-
-      if (skillData) {
-        setSkill(skillData);
-        setIsLoading(false);
-      } else {
-        setIsLoading(false);
-      }
-    }
-  }, [skillid, skillsData]);
-
-  if (skill) {
-    console.log("skill", skill);
-    // skill.roadMap = dummy_skills[0].roadMap;
-  }
+    console.log("skillid", skillid);
+    fetchSkillData();
+  }, [skillid]);
 
   if (isLoading) {
     return (

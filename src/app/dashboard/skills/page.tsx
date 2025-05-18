@@ -36,6 +36,7 @@ const SkillCard = ({ skill }: { skill: any }) => {
   const overallProgress = totalLevels > 0 ? Math.round((completedLevels / totalLevels) * 100) : 0;
   const currentLevel = skill.roadMap?.find((level: any) => !level.isCompleted);
   const router = useRouter();
+
   return (
     <div className="bg-gray-800 shadow-xl rounded-xl p-6 hover:shadow-blue-500/30 transition-shadow duration-300 flex flex-col justify-between">
       <div>
@@ -130,7 +131,7 @@ export default function MySkillsPage() {
                     <h1 className="text-3xl font-bold tracking-tight">My Learning Skills</h1>
                     <p className="mt-1 text-lg text-gray-400">Track your progress and continue your learning journey.</p>
                 </div>
-                <button onClick={() => router.push('/dashboard/create-game')} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200">
+                <button onClick={() => router.push('/dashboard/create-skill')} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200">
                         New Skill <Plus className="h-6 w-6" aria-hidden="true" />
                     </button>
               </div>
