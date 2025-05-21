@@ -8,6 +8,7 @@ export const users = pgTable('users', {
   education: text('education'),
   occupation: text('occupation'),
   goals: text('goals'),
+  coins: integer('coins').default(30),
   interests: jsonb('interests').$type<string[]>(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),

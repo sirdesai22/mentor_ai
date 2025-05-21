@@ -58,7 +58,8 @@ export default function DashboardPage() {
             goals: userDataDB.goals,
             interests: userDataDB.interests,
             createdAt: userDataDB.createdAt.toISOString(),
-            updatedAt: userDataDB.updatedAt.toISOString()
+            updatedAt: userDataDB.updatedAt.toISOString(),
+            coins: userDataDB.coins || 0
           });
         }
       } catch (error) {

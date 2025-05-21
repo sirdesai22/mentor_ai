@@ -24,10 +24,10 @@ import {
 import DashLayout from "@/layout/DashLayout";
 import { useRoadmap } from "@/hooks/generateRoadmap";
 import { useRouter } from "next/navigation";
-import { skills } from "@/lib/db/schema";
+import { skills, users } from "@/lib/db/schema";
 import { db } from "@/lib/db";
 import { useUserStore } from "@/store/userStore";
-
+import { eq } from "drizzle-orm";
 // Dummy MCQ data
 const dummyMCQs = [
   {
@@ -123,6 +123,9 @@ export default function NewSkillPage() {
           userStyle: userPreferences,
           userId: user.id,
         });
+        const updatedUser = await db.update(users).set({
+          coins: user.coins - 10,
+        }).where(eq(users.id, user.id));
         console.log(skill);
         setPageState("game_ready");
         setIsLoading(false);
@@ -254,8 +257,7 @@ export default function NewSkillPage() {
                 </>
               ) : (
                 <>
-                  Click to Finalize Game for 10 GP{" "}
-                  <Sparkles className="ml-2 h-5 w-5" />
+                  Click to Finalize Skill for 10 <img src="/gold-coin.svg" alt="Diamond" width={24} height={24} />
                 </>
               )}
             </button>

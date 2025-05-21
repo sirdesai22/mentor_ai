@@ -10,6 +10,7 @@ interface User {
   occupation: string | null
   goals: string | null
   interests: string[] | null
+  coins: number
   createdAt: string
   updatedAt: string
 }

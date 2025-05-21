@@ -1,6 +1,7 @@
 'use client'
+import { useUserStore } from '@/store/userStore'
 import { SignOutButton, useUser } from '@clerk/nextjs'
-import { Award, Bell, BookOpen, ChevronDown, LayoutDashboard, LogOut, Menu, Plus, Search, Settings, Sparkles, X } from 'lucide-react'
+import { Award, Bell, BookOpen, ChevronDown, Diamond, LayoutDashboard, LogOut, Menu, Plus, Search, Settings, Sparkles, X } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import React, { useState } from 'react'
@@ -34,13 +35,16 @@ const DashLayout = ({ children }: Props) => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
-  const { user } = useUser();
+  const { user } = useUserStore();
+
+  console.log("user", user);
 
   const userData = {
-    name: user?.fullName || 'User',
-    email: user?.emailAddresses[0].emailAddress || 'User Email',
+    name: user?.name || 'User',
+    email: user?.email || 'User Email',
     username: user?.username || 'User Username',
-    avatarUrl: user?.imageUrl || '',
+    avatarUrl: '',
+    coins: user?.coins || 0,
     currentSkill: 'Python Programming',
     currentLevel: 5,
     progress: 65, // Percentage
@@ -123,6 +127,10 @@ const DashLayout = ({ children }: Props) => {
                 </div>
                 <div className="md:hidden flex-1"></div> {/* Spacer for mobile */}
                 <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2 font-semibold text-xl text-yellow-500">
+                    {userData?.coins}
+                    <img src="/gold-coin.svg" alt="Diamond" width={24} height={24} />
+                  </div>
                   <button className="p-1 rounded-full text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
                     <Bell className="h-6 w-6" aria-hidden="true" />
                   </button>
