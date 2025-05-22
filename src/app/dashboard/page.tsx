@@ -149,16 +149,16 @@ export default function DashboardPage() {
                   <div className="space-y-3 mb-6">
                     <div className="flex justify-between items-center">
                       <p className="text-gray-300">Current Level:</p>
-                      <p className="font-bold text-lg">{skill.roadMap?.[0]?.level || 'N/A'}</p>
+                      <p className="font-bold text-lg">{skill.roadMap?.filter((level: any) => level.isCompleted).length+1 || 0}</p>
                     </div>
                     <div className="flex justify-between items-center">
                       <p className="text-gray-300">Skills Mastered:</p>
-                      <p className="font-bold text-lg">{skill.roadMap?.[0]?.progress?.skills_mastered || 0}%</p>
+                      <p className="font-bold text-lg">{skill.roadMap?.filter((level: any) => level.isCompleted).length+1 || 0}%</p>
                     </div>
-                    <div className="flex justify-between items-center">
+                    {/* <div className="flex justify-between items-center">
                       <p className="text-gray-300">Total Hours:</p>
-                      <p className="font-bold text-lg">{skill.roadMap?.[0]?.progress?.total_hours || 0}</p>
-                    </div>
+                      <p className="font-bold text-lg">{skill.roadMap?.filter((level: any) => level.isCompleted).length+1 || 0}</p>
+                    </div> */}
                   </div>
                   <div className="w-full bg-gray-700 rounded-full h-3 mb-1">
                     <div
