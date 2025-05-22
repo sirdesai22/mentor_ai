@@ -34,6 +34,9 @@ import { useSkillsStore } from '@/store/skillsStore';
 export default function DashboardPage() {
   const { user } = useUser();
   const router = useRouter();
+  if (!user) {
+    router.push('/login');
+  }
 
   const { user: userData, setUser, setLoading, setError, isLoading } = useUserStore();
   const { skills: skillsData, setSkills, setLoading: setSkillsLoading, setError: setSkillsError } = useSkillsStore();

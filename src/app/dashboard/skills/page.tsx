@@ -27,7 +27,7 @@ import { skills } from '@/lib/db/schema';
 import { db } from '@/lib/db';
 import { eq } from 'drizzle-orm';
 import { useRouter } from 'next/navigation';
-
+import { useUser } from '@clerk/nextjs';
 // Skill Card Component
 const SkillCard = ({ skill }: { skill: any }) => {
   // Calculate overall progress for the skill
@@ -36,6 +36,10 @@ const SkillCard = ({ skill }: { skill: any }) => {
   const overallProgress = totalLevels > 0 ? Math.round((completedLevels / totalLevels) * 100) : 0;
   const currentLevel = skill.roadMap?.find((level: any) => !level.isCompleted);
   const router = useRouter();
+  const { user } = useUser();
+  if (!user) {
+    router.push('/login');
+  }
 
   return (
     <div className="bg-gray-800 shadow-xl rounded-xl p-6 hover:shadow-blue-500/30 transition-shadow duration-300 flex flex-col justify-between">

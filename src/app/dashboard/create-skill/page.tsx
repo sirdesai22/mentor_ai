@@ -88,6 +88,10 @@ export default function NewSkillPage() {
     }, 2000);
   };
 
+  if (!user) {
+    router.push('/login');
+  }
+
   const handleAnswerSelect = (questionId: number, option: string) => {
     setSelectedAnswers((prev) => ({ ...prev, [questionId]: option }));
   };

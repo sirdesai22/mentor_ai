@@ -33,7 +33,7 @@ import { db } from "@/lib/db";
 import { skills } from "@/lib/db/schema";
 import { and, eq, inArray } from "drizzle-orm";
 import { useRefetchDB } from "@/hooks/refetchDB";
-
+import { useUser } from "@clerk/nextjs";
 interface ChatMessage {
   sender: "user" | "ai";
   text: string;
@@ -89,6 +89,11 @@ export default function TopicsStudyPage() {
   const [chatInput, setChatInput] = useState("");
   const [isAiTyping, setIsAiTyping] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+
+  const { user } = useUser();
+  if (!user) {
+    router.push('/login');
+  }
 
   const { generateStudyMaterial } = useTopicStudy();
   const { refetchAllData } = useRefetchDB();

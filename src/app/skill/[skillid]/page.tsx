@@ -33,6 +33,7 @@ import { useRefetchDB } from "@/hooks/refetchDB";
 import { skills } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
+import { useUser } from "@clerk/nextjs";
 
 interface Skill {
   id: string;
@@ -67,6 +68,11 @@ export default function RoadmapPage() {
   const skillid = params.skillid as string;
   const [skill, setSkill] = useState<Skill | any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { user } = useUser();
+
+  if (!user) {
+    router.push('/login');
+  }
 
   const fetchSkillData = async () => {
     const data = await db.select().from(skills).where(eq(skills.id, skillid)).limit(1);
