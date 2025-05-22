@@ -125,6 +125,16 @@ export default function MySkillsPage() {
     }
   }, [user?.id]);
 
+  const createNewSkill = () => {
+    if(user?.coins && user?.coins < 10) {
+      alert('You need to have at least 10 coins to create a new skill');
+      return;
+    }
+    else {
+      router.push('/dashboard/create-skill');
+    }
+  }
+
   return (
     <DashLayout>
       {/* Page Content */}
@@ -135,7 +145,7 @@ export default function MySkillsPage() {
                     <h1 className="text-3xl font-bold tracking-tight">My Learning Skills</h1>
                     <p className="mt-1 text-lg text-gray-400">Track your progress and continue your learning journey.</p>
                 </div>
-                <button onClick={() => router.push('/dashboard/create-skill')} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200">
+                <button onClick={createNewSkill} className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200">
                         New Skill <Plus className="h-6 w-6" aria-hidden="true" />
                     </button>
               </div>

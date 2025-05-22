@@ -127,9 +127,11 @@ export default function DashboardPage() {
             <p className="mt-1 text-lg text-gray-400">Ready to continue your learning adventure?</p>
           </div>
 
-          <div className="flex flex-col gap-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* map only recent 2 skills */}
+          {/* Recent Skills Section */}
+          {skillsData && skillsData?.length > 0 ? (
+            <div className="flex flex-col gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* map only recent 2 skills */}
               {skillsData?.slice(0, 2)?.map((skill: any, index: number) => (
                 <div key={index} className="bg-gray-800 shadow-xl rounded-xl p-6 hover:shadow-blue-500/30 transition-shadow duration-300">
                   <div className="flex items-center justify-between mb-4">
@@ -176,7 +178,7 @@ export default function DashboardPage() {
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform">
               View All Skills
             </button>
-            <div className="bg-gray-800 shadow-xl rounded-xl p-6 hover:shadow-purple-500/30 transition-shadow duration-300">
+            {/* <div className="bg-gray-800 shadow-xl rounded-xl p-6 hover:shadow-purple-500/30 transition-shadow duration-300">
               <h2 className="text-xl font-semibold text-purple-400 flex items-center mb-4">
                 <BarChart3 className="h-6 w-6 mr-2" />
                 Progress Snapshot
@@ -184,24 +186,30 @@ export default function DashboardPage() {
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <p className="text-gray-300">Skills Mastered:</p>
-                  <p className="font-bold text-lg">3</p> {/* Placeholder */}
+                  <p className="font-bold text-lg">3</p> 
                 </div>
                 <div className="flex justify-between items-center">
                   <p className="text-gray-300">Achievements Unlocked:</p>
-                  <p className="font-bold text-lg">12</p> {/* Placeholder */}
+                  <p className="font-bold text-lg">12</p> 
                 </div>
                 <div className="flex justify-between items-center">
                   <p className="text-gray-300">Total Hours Learned:</p>
-                  <p className="font-bold text-lg">47</p> {/* Placeholder */}
+                  <p className="font-bold text-lg">47</p> 
                 </div>
               </div>
               <Link href="/dashboard/achievements" passHref>
                 <p className="mt-6 block text-center w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold px-4 py-2.5 rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
-                  View All Achievements
+                  View All Achievements 
                 </p>
               </Link>
+            </div> */}
+          </div>  
+          ) : (
+            <div className="flex justify-center items-center flex-col gap-4">
+              {/* <p className="text-gray-400">No skills found</p> */}
+              <button onClick={() => router.push('/dashboard/skills')} className=" bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform">Create New Skill </button>
             </div>
-          </div>
+          )}
 
           {/* Recommended Skills Section */}
           <div className="mt-10">

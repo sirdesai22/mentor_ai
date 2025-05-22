@@ -127,7 +127,7 @@ export default function NewSkillPage() {
           userStyle: userPreferences,
           userId: user.id,
         });
-        const updatedUser = await db.update(users).set({
+        await db.update(users).set({
           coins: user.coins - 10,
         }).where(eq(users.id, user.id));
         console.log(skill);
