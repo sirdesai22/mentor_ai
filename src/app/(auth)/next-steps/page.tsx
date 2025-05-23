@@ -20,14 +20,20 @@ export default function NextStepsPage() {
   });
 
   const interests = [
+    'Marketing',
+    'Graphic Design',
+    'Photography',
+    'Creative Writing',
+    'Online Business',
+    'Finance',
+    'Entrepreneurship',
+    'E-commerce',
+    'Content Creation',
     'Programming',
     'Data Science',
     'Machine Learning',
-    'Web Development',
-    'Mobile Development',
     'Cloud Computing',
     'Cybersecurity',
-    'UI/UX Design',
   ];
 
   const handleInterestToggle = (interest: string) => {
