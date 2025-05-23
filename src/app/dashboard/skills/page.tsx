@@ -16,6 +16,7 @@ import { db } from '@/lib/db';
 import { eq } from 'drizzle-orm';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
+import { useRefetchDB } from '@/hooks/refetchDB';
 // Skill Card Component
 const SkillCard = ({ skill }: { skill: any }) => {
   const [totalLevels, setTotalLevels] = useState(0);
@@ -93,7 +94,7 @@ export default function MySkillsPage() {
   const [skillsData, setSkillsData] = useState<any[]>([]);
   const { user, setLoading, setError } = useUserStore();
   const router = useRouter();
-
+  const { refetchAllData } = useRefetchDB();
   useEffect(() => {
     const fetchSkillsData = async () => {
       try {
@@ -120,12 +121,13 @@ export default function MySkillsPage() {
     };
 
     if (user?.id) {
+      refetchAllData();
       fetchSkillsData();
     }
   }, [user?.id]);
 
   const createNewSkill = () => {
-    if(user?.coins && user?.coins < 10) {
+    if(!user?.coins || user?.coins < 10) {
       alert('You need to have at least 10 coins to create a new skill');
       return;
     }
