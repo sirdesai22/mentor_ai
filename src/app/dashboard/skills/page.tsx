@@ -1,27 +1,15 @@
 'use client'
-import Head from 'next/head';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 import {
-  LayoutDashboard,
   BookOpen, // For My Skills & skill cards
-  Award,
-  Settings,
-  LogOut,
-  ChevronDown,
-  Bell,
-  Search,
   Sparkles, // For MENTOR AI logo
-  Menu, // For mobile menu toggle
-  X, // For mobile menu toggle
-  Lightbulb, // For New Skill
   ChevronRight,
   TrendingUp, // For progress
   ListChecks, // For tasks
   Target, // For levels
   Plus
 } from 'lucide-react';
-import DashLayout from '@/layout/DashLayout';
 import { useUserStore } from '@/store/userStore';
 import { skills } from '@/lib/db/schema';
 import { db } from '@/lib/db';
@@ -136,10 +124,8 @@ export default function MySkillsPage() {
   }
 
   return (
-    <DashLayout>
-      {/* Page Content */}
-          <main className="flex-1 overflow-y-auto p-6 md:p-8 lg:p-10 bg-gray-900">
-            <div className="max-w-7xl mx-auto">
+    <div className="flex-1 overflow-y-auto p-6 md:p-8 lg:p-10 bg-gray-900">
+      <div className="max-w-7xl mx-auto">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight">My Learning Skills</h1>
@@ -171,7 +157,6 @@ export default function MySkillsPage() {
                 </div>
               )}
             </div>
-          </main>
-    </DashLayout>
+    </div>
   );
 }

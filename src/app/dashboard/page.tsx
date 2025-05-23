@@ -102,23 +102,18 @@ export default function DashboardPage() {
 
   if (!user) {
     return (
-      <DashLayout>
         <div className='flex justify-center items-center h-screen'>Loading...</div>
-      </DashLayout>
     );
   }
 
   // Show loading state only when we're actually fetching data
   if (isLoading && userData === null) {
     return (
-      <DashLayout>
         <div className='flex justify-center items-center h-screen'>Loading...</div>
-      </DashLayout>
     );
   }
 
   return (
-    <DashLayout>
       <main className="flex-1 overflow-y-auto p-6 md:p-8 lg:p-10 bg-gray-900 scrollbar-hide">
         <div className="max-w-7xl mx-auto scrollbar-hide">
           {/* Welcome Header */}
@@ -238,6 +233,5 @@ export default function DashboardPage() {
           </div>
         </div>
       </main>
-    </DashLayout>
   );
 }

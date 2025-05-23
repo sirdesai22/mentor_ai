@@ -5,12 +5,12 @@ type Props = {
     children: React.ReactNode
 }
 
-const SettingsLayout = ({ children }: Props) => {
+const DashboardLayout = ({ children }: Props) => {
   return (
     <DashLayout>
         {children}
     </DashLayout>
-  )
+  ) 
 }
 
-export default SettingsLayout
+export default DashboardLayout
