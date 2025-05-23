@@ -5,6 +5,7 @@ import { eq } from "drizzle-orm";
 import { useUser } from "@clerk/nextjs";
 import React, { useEffect, useState } from "react";
 import { users } from "@/lib/db/schema";
+import { useRouter } from "next/navigation";
 
 type Props = {};
 
@@ -12,7 +13,8 @@ const SettingsPage = (props: Props) => {
   const { user } = useUser();
   const [userData, setUserData] = useState<any>();
   const [isEdited, setIsEdited] = useState(false);
-
+  const router = useRouter();
+  
   useEffect(() => {
     const fetchUserData = async () => {
       const response = await db.query.users.findFirst({
@@ -46,6 +48,9 @@ const SettingsPage = (props: Props) => {
     setIsEdited(false);
   };
 
+  if (!user) {
+    router.push('/login');
+  }
   if (!userData) {
     return <div className="flex justify-center items-center h-full w-full text-4xl text-white font-bold">Loading...</div>;
   }

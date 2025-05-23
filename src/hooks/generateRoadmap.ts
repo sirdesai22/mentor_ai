@@ -47,7 +47,7 @@ export const useRoadmap = (): UseRoadmapReturn => {
         "roadMap": [
           {
             "level": number,
-            "isCompleted": false, //default keep it false for now
+            "isCompleted": false, //default keep it false do not change it
             "title": string,
             "description": string,
             "suggestedQuestions": string[],
@@ -55,8 +55,8 @@ export const useRoadmap = (): UseRoadmapReturn => {
               {
                 "id": string, // 0,1,2,3,4,5...
                 "name": string,
-                "isCompleted": false, //default keep it false for now
-                "isGenerated": false, //default keep it false for now
+                "isCompleted": false, //default keep it false do not change it
+                "isGenerated": false, //default keep it false do not change it
                 "subTopics": string[] //list of subtopics that need to be studied under this topic
               }
             ]

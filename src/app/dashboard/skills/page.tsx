@@ -18,16 +18,27 @@ import { useRouter } from 'next/navigation';
 import { useUser } from '@clerk/nextjs';
 // Skill Card Component
 const SkillCard = ({ skill }: { skill: any }) => {
-  // Calculate overall progress for the skill
-  const totalLevels = skill.roadMap?.length || 0;
-  const completedLevels = skill.roadMap?.filter((level: any) => level.isCompleted).length || 0;
-  const overallProgress = totalLevels > 0 ? Math.round((completedLevels / totalLevels) * 100) : 0;
-  const currentLevel = skill.roadMap?.find((level: any) => !level.isCompleted);
+  const [totalLevels, setTotalLevels] = useState(0);
+  const [completedLevels, setCompletedLevels] = useState(0);
+  const [overallProgress, setOverallProgress] = useState(0);
+  const [currentLevel, setCurrentLevel] = useState<any>(null);
   const router = useRouter();
   const { user } = useUser();
+  
   if (!user) {
     router.push('/login');
   }
+
+  useEffect(() => {
+    const totalLevels = skill.roadMap?.length || 0;
+    const completedLevels = skill.roadMap?.filter((level: any) => level.isCompleted).length || 0;
+    const overallProgress = totalLevels > 0 ? Math.round((completedLevels / totalLevels) * 100) : 0;
+    const currentLevel = skill.roadMap?.find((level: any) => !level.isCompleted) || null;
+    setTotalLevels(totalLevels);
+    setCompletedLevels(completedLevels);
+    setOverallProgress(overallProgress);
+    setCurrentLevel(currentLevel);
+  }, [skill]);
 
   return (
     <div className="bg-gray-800 shadow-xl rounded-xl p-6 hover:shadow-blue-500/30 transition-shadow duration-300 flex flex-col justify-between">
@@ -149,7 +160,7 @@ export default function MySkillsPage() {
                   <p className="mt-2 text-sm text-gray-400">
                     Start your learning journey by adding a new skill.
                   </p>
-                  <Link href="/dashboard/new-skill" passHref>
+                  <Link href="/dashboard/create-skill" passHref>
                     <p className="mt-6 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-blue-500">
                       Add Your First Skill
                     </p>

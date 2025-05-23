@@ -34,9 +34,12 @@ import { useSkillsStore } from '@/store/skillsStore';
 export default function DashboardPage() {
   const { user } = useUser();
   const router = useRouter();
-  if (!user) {
-    router.push('/login');
-  }
+
+   useEffect(() => {
+    if (!user) {
+      router.push('/login');
+    }
+  }, [user, router]);
 
   const { user: userData, setUser, setLoading, setError, isLoading } = useUserStore();
   const { skills: skillsData, setSkills, setLoading: setSkillsLoading, setError: setSkillsError } = useSkillsStore();
@@ -85,7 +88,7 @@ export default function DashboardPage() {
     const fetchSkillsData = async () => {
       try {
         const skillsDataDB = await db.query.skills.findMany({
-          where: eq(skills.userId, userData?.id || ''),
+          where: eq(skills.userId as any, userData?.id as any),
         });
         // console.log("skillsDataDB", skillsDataDB);
         setSkills(skillsDataDB as any);

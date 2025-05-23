@@ -155,7 +155,6 @@ export default function NewSkillPage() {
               request and prepare some initial questions to tailor your learning
               game.
             </p>
-            <button onClick={() => handleGenerateSkill("skillInput")}>Generate</button>
             <form onSubmit={handleSkillSubmit}>
               <textarea
                 value={skillInput}
@@ -197,7 +196,7 @@ export default function NewSkillPage() {
               </h2>
             </div>
             <p className="text-gray-400 mb-6">
-              Answer this question to help us personalize your game.
+              Answer these questions to help us personalize your roadmap.
             </p>
             <div className="grid grid-cols-2 gap-4">
               {currentMCQ.options.map((option, index) => {

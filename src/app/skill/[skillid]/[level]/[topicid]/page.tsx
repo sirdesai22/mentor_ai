@@ -90,14 +90,14 @@ export default function TopicsStudyPage() {
   const [isAiTyping, setIsAiTyping] = useState(false);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
-  const { user } = useUser();
-  if (!user) {
-    router.push('/login');
-  }
-
   const { generateStudyMaterial } = useTopicStudy();
   const { refetchAllData } = useRefetchDB();
+  const { user } = useUser();
   useEffect(() => {
+    if(!user) {
+      router.push('/login');
+    }
+    
     const fetchData = async () => {
       try {
         setIsLoading(true);
@@ -340,7 +340,7 @@ export default function TopicsStudyPage() {
                         >
                           {subtopic.title}
                         </h1>
-                        {subtopic.type === "video" && (
+                        {subtopic.resources.type === "video" && (
                           <div className="mb-4">
                             <div
                               className="content-container"
@@ -348,23 +348,22 @@ export default function TopicsStudyPage() {
                                 __html: subtopic.content,
                               }}
                             ></div>
-                            <iframe
-                              src={subtopic.resources}
-                              className="w-full h-96 rounded-lg mt-2"
-                            />
+                            <Link href={`https://www.youtube.com/results?search_query=${subtopic.title}`} target="_blank" className="w-full h-96 rounded-lg mt-2">
+                              <img src={'https://cdn.gtricks.com/2021/04/how-to-enable-youtube-dark-mode-on-pc-and-android-ios-1280x720.jpg'} alt="YouTube Thumbnail" className="w-full h-96 rounded-lg mt-2" />
+                              </Link>
                           </div>
                         )}
-                        {subtopic.type === "article" && (
+                        {subtopic.resources.type === "article" && (
                           <div className="mb-4">
                             <p className="text-sm text-gray-400 mb-2">
                               Article Resource:{" "}
                               <a
                                 className="text-blue-400"
-                                href={subtopic.resources}
+                                href={subtopic.resources.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
                               >
-                                {subtopic.resources}
+                                {subtopic.resources.url}
                               </a>
                             </p>
                             <div
@@ -375,17 +374,17 @@ export default function TopicsStudyPage() {
                             ></div>
                           </div>
                         )}
-                        {subtopic.type === "code" && (
+                        {subtopic.resources.type === "code" && (
                           <div className="mb-4">
                             <p className="text-sm text-gray-400 mb-2">
                               Code Resource:{" "}
                               <a
                                 className="text-blue-400"
-                                href={subtopic.resources}
+                                href={subtopic.resources.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
                               >
-                                {subtopic.resources}
+                                {subtopic.resources.url}
                               </a>
                             </p>
                             <div

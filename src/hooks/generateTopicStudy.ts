@@ -39,7 +39,10 @@ const createPrompt = (topic: string, subtopics: string[], learningStyle: Learnin
             type: "video" | "article" | "code", (generate any one of them based on the user's learning style)
             title: string;
             content: article (always) in html as a string | code (when needed) in html as a string (do not include youtube videos in this section of the code);
-            resources: youtube url as a string and make sure to use embeded youtube videos for videos | article url as a string;
+            resources: {
+              type: "video" | "article" | "code",
+              url: string
+            } //youtube url as a string for videos | article url as a string;
             estimatedTime: string;
             practiceProjects: string[];
             keyPoints: string[];
@@ -51,6 +54,8 @@ const createPrompt = (topic: string, subtopics: string[], learningStyle: Learnin
       - visual: Focus on video content and visual explanations
       - reading: Provide comprehensive articles and documentation
       - kinesthetic: Emphasize practical exercises and code examples
+
+      For Youtube videos, Before suggesting a YouTube video, ensure it is not private, deleted, or age-restricted
 
       Ensure all resources are high-quality and up-to-date. Return only raw JSON, no markdown or explanations.`;
 };
