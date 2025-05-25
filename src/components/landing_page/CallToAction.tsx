@@ -12,10 +12,10 @@ const CallToActionSection = () => {
           </p>
           <div className="mt-10">
             <a
-              href="mailto:beta@mentorai.example.com?subject=Mentor%20AI%20Beta%20Program%20Sign-up" // Replace with your actual sign-up link or form
+              href="/register" // Replace with your actual sign-up link or form
               className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold px-10 py-4 rounded-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 text-lg inline-flex items-center"
             >
-              Get Early Access Now <ArrowRight className="ml-3 h-6 w-6" />
+              Start Your Learning Journey <ArrowRight className="ml-3 h-6 w-6" />
             </a>
           </div>
           <p className="mt-6 text-sm text-gray-400">Limited spots available. Don't miss out!</p>

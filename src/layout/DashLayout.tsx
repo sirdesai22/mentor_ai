@@ -4,7 +4,11 @@ import { SignOutButton, useUser } from '@clerk/nextjs'
 import { Award, Bell, BookOpen, ChevronDown, Diamond, LayoutDashboard, LogOut, Menu, Plus, Search, Settings, Sparkles, X } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useRefetchDB } from '@/hooks/refetchDB'
+import { eq } from 'drizzle-orm'
+import { users } from '@/lib/db/schema'
+import { db } from '@/lib/db'
 
 type Props = {
     children: React.ReactNode
@@ -35,20 +39,22 @@ const DashLayout = ({ children }: Props) => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
-  const { user } = useUserStore();
+  const { user } = useUser();
+  const { refetchAllData } = useRefetchDB();
+  const [userData, setUserData] = useState<any>(null);
+  
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const userDataDB = await db.query.users.findFirst({
+        where: eq(users.email, user?.emailAddresses[0].emailAddress || ''),
+      });
+      console.log("userData", userDataDB);
+      setUserData(userDataDB)
+    }
+    refetchAllData()
+    fetchUserData()
+  }, [user?.id])
 
-  console.log("user", user);
-
-  const userData = {
-    name: user?.name || 'User',
-    email: user?.email || 'User Email',
-    username: user?.username || 'User Username',
-    avatarUrl: '',
-    coins: user?.coins || 0,
-    currentSkill: 'Python Programming',
-    currentLevel: 5,
-    progress: 65, // Percentage
-  };
 
   return (
     <div className="font-inter bg-gray-900 text-white min-h-screen flex antialiased h-screen">
@@ -136,7 +142,7 @@ const DashLayout = ({ children }: Props) => {
                   </button>
                   <div className="relative">
                     <button className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
-                      <UserAvatar name={userData?.name || 'User'} avatarUrl={userData?.avatarUrl || ''} />
+                      <UserAvatar name={userData?.name || 'User'} avatarUrl={userData?.imageUrl || ''} />
                       <span className="hidden ml-2 text-sm font-medium text-gray-300 lg:block">{userData?.name || 'User'}</span>
                       <ChevronDown className="hidden ml-1 h-4 w-4 text-gray-400 lg:block" />
                     </button>

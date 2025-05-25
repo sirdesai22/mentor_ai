@@ -43,7 +43,7 @@ export const useRoadmap = (): UseRoadmapReturn => {
       Format the response as a JSON object with the following structure:
       data:{
         "name": string, //give a name to the skill - fun/creative/game-like (keep it short and concise)
-        "description": string,
+        "description": string, //give a short description of the skill 200 characters max and 160 characters min
         "roadMap": [
           {
             "level": number,

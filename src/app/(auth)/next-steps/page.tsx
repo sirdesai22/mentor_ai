@@ -73,6 +73,7 @@ export default function NextStepsPage() {
           education: formData.education,
           occupation: formData.occupation,
           goals: formData.goals,
+          coins: 50,
           interests: formData.interests,
           createdAt: new Date(),
           updatedAt: new Date(),

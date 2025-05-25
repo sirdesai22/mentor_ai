@@ -14,7 +14,7 @@ const HeroSection = () => {
           </p>
           <div className="mt-10 flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
             <a
-              href="#early-access"
+              href="/register"
               className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 text-lg flex items-center"
             >
               Start Your Learning Journey <PlayCircle className="ml-3 h-6 w-6" />

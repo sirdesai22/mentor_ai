@@ -217,7 +217,7 @@ export default function DashboardPage() {
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Placeholder Skill Cards */}
-              {['JavaScript Fundamentals', 'Data Structures & Algorithms', 'AI Ethics & Society'].map((skill, idx) => (
+              {['JavaScript Fundamentals', 'Build your Youtube Channel', 'AI Ethics & Society'].map((skill, idx) => (
                 <div key={idx} className="bg-gray-800 p-6 rounded-xl shadow-lg hover:ring-2 hover:ring-green-500 transition-all duration-300">
                   <div className="flex items-center mb-3">
                     {/* Generic Icon, could be dynamic based on skill category */}

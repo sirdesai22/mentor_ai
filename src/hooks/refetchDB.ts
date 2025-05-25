@@ -25,10 +25,10 @@ export const useRefetchDB = (): UseRefetchDBReturn => {
       setError(null);
 
       const userData = await db.query.users.findFirst({
-        where: eq(users.id, user?.id || ''),
+        where: eq(users.email, user?.email || ''),
       });
       if (!userData) throw new Error('User data not found');
-
+      console.log("userData refetch", userData);
       setUser(userData as any);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch user data');
