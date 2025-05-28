@@ -95,7 +95,7 @@ export default function TopicsStudyPage() {
   const { user } = useUser();
   useEffect(() => {
     if(!user) {
-      router.push('/login');
+      router.push('/sign-in');
     }
     
     const fetchData = async () => {

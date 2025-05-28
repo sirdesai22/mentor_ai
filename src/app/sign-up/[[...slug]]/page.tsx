@@ -1,9 +1,8 @@
-'use client';
+import { SignUp } from "@clerk/nextjs";
 import { Sparkles } from 'lucide-react';
 import Link from 'next/link';
-import { SignUp } from '@clerk/nextjs';
 
-export default function SignupPage() {
+export default function Page() {
   return (
     <div className="font-inter bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-4 antialiased overflow-x-hidden">
       <div className="w-full max-w-md flex flex-col items-center justify-center">
@@ -15,28 +14,21 @@ export default function SignupPage() {
               MENTOR <span className="text-blue-500">AI</span>
             </p>
           </Link>
-          <h1 className="text-2xl font-semibold text-gray-300">Create Your Account</h1>
+          <h1 className="text-2xl font-semibold text-gray-300">Create Account</h1>
           <p className="text-gray-400">Start your learning journey today.</p>
         </div>
 
-        {/* Clerk SignUp Component */}
-        <SignUp 
-          path="/register" 
-          routing="path" 
-          signInUrl="/login"
-          fallbackRedirectUrl="/next-steps" // Optional: redirect after successful sign-up
+        <SignUp
+          appearance={{
+            elements: {
+              formButtonPrimary: 'bg-blue-600 hover:bg-blue-700',
+              footerActionLink: 'text-blue-600 hover:text-blue-700',
+            }
+          }}
+          afterSignUpUrl="/dashboard"
+          signInUrl="/sign-in"
         />
-
-        {/* Login Link */}
-        <div className="mt-8 text-center text-sm text-gray-400">
-          Already have an account?{' '}
-          <Link href="/login" passHref>
-            <p className="font-medium text-blue-500 hover:text-blue-400 hover:underline">
-              Sign In
-            </p>
-          </Link>
-        </div>
       </div>
     </div>
   );
-}
+} 

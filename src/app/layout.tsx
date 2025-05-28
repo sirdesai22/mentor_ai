@@ -2,6 +2,8 @@ import "./globals.css";
 import Head from "next/head";
 import { ClerkProvider } from '@clerk/nextjs';
 import { Geist, Geist_Mono } from "next/font/google";
+// import { dark } from "@clerk/themes";
+import { Inter } from "next/font/google";
 
 const geistSans = Geist({
   subsets: ["latin"],
@@ -12,6 +14,8 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-geist-mono",
 });
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Mentor AI",
@@ -24,7 +28,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider
+      appearance={{
+        // baseTheme: dark,
+        elements: {
+          formButtonPrimary: 'bg-blue-600 hover:bg-blue-700',
+          footerActionLink: 'text-blue-600 hover:text-blue-700',
+        },
+      }}
+    >
       <html lang="en">
         <Head>
           <title>Mentor AI - Learn with AI-Powered Games</title>
@@ -35,7 +47,7 @@ export default function RootLayout({
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
           <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
         </Head>
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased ${inter.className}`}>
           {children}
         </body>
       </html>

@@ -1,6 +1,7 @@
 // Component: Navigation Bar
 import { useState } from 'react';
 import { Sparkles, ArrowRight, Menu, X } from 'lucide-react';
+import Link from 'next/link';
 
 const Navbar = () => {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -41,7 +42,7 @@ const Navbar = () => {
             {/* Desktop CTA */}
             <div className="hidden md:block">
               <a
-                href="/login"
+                href="/sign-in"
                 className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center"
               >
                 Sign Up <ArrowRight className="ml-2 h-5 w-5" />
@@ -77,13 +78,13 @@ const Navbar = () => {
               ))}
             </div>
             <div className="pb-3 px-2">
-               <a
-                href="/login"
+               <Link
+                href="/sign-in"
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
               >
                 Sign In <ArrowRight className="ml-2 h-5 w-5" />
-              </a>
+              </Link>
             </div>
           </div>
         )}

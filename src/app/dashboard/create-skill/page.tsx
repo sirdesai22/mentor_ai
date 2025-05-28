@@ -89,7 +89,7 @@ export default function NewSkillPage() {
   };
 
   if (!user) {
-    router.push('/login');
+    router.push('/sign-in');
   }
 
   const handleAnswerSelect = (questionId: number, option: string) => {

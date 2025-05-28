@@ -49,7 +49,7 @@ const SettingsPage = (props: Props) => {
   };
 
   if (!user) {
-    router.push('/login');
+    router.push('/sign-in');
   }
   if (!userData) {
     return <div className="flex justify-center items-center h-full w-full text-4xl text-white font-bold">Loading...</div>;
