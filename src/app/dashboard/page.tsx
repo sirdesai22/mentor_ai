@@ -227,7 +227,10 @@ export default function DashboardPage() {
                     <h3 className="text-lg font-semibold text-gray-100">{skill}</h3>
                   </div>
                   <p className="text-sm text-gray-400 mb-4">Master the essentials and build a strong foundation in {skill.toLowerCase()}.</p>
-                  <button className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors">
+                  <button 
+                    onClick={() => router.push(`/dashboard/create-skill?skill=${encodeURIComponent(skill)}`)}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                  >
                     Start Learning
                   </button>
                 </div>
