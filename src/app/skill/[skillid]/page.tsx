@@ -71,7 +71,7 @@ export default function RoadmapPage() {
   const { user } = useUser();
 
   if (!user) {
-    router.push('/login');
+    router.push('/sign-in');
   }
 
   const fetchSkillData = async () => {

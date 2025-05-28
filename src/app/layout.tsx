@@ -2,7 +2,7 @@ import "./globals.css";
 import Head from "next/head";
 import { ClerkProvider } from '@clerk/nextjs';
 import { Geist, Geist_Mono } from "next/font/google";
-import { dark } from "@clerk/themes";
+// import { dark } from "@clerk/themes";
 import { Inter } from "next/font/google";
 
 const geistSans = Geist({
@@ -30,7 +30,7 @@ export default function RootLayout({
   return (
     <ClerkProvider
       appearance={{
-        baseTheme: dark,
+        // baseTheme: dark,
         elements: {
           formButtonPrimary: 'bg-blue-600 hover:bg-blue-700',
           footerActionLink: 'text-blue-600 hover:text-blue-700',

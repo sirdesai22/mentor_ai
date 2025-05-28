@@ -27,7 +27,7 @@ const SkillCard = ({ skill }: { skill: any }) => {
   const { user } = useUser();
   
   if (!user) {
-    router.push('/login');
+    router.push('/sign-in');
   }
 
   useEffect(() => {
