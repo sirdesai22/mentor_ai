@@ -1,4 +1,5 @@
-import { PlayCircle, ChevronRight } from "lucide-react";
+import { PlayCircle, ChevronRight, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 // Component: Hero Section
 const HeroSection = () => {
@@ -13,12 +14,13 @@ const HeroSection = () => {
             MENTOR AI transforms skill acquisition into an engaging adventure. Learn by playing AI-generated games tailored to your goals, making learning effective and fun.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row justify-center items-center space-y-4 sm:space-y-0 sm:space-x-6">
-            <a
-              href="/register"
-              className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-4 rounded-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 text-lg flex items-center"
+            <Link
+              href="/sign-up"
+              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
             >
-              Start Your Learning Journey <PlayCircle className="ml-3 h-6 w-6" />
-            </a>
+              Get Started
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
             <a
               href="#how-it-works"
               className="text-blue-400 hover:text-blue-300 font-semibold px-8 py-4 rounded-lg border border-blue-500 hover:border-blue-400 transition-colors duration-300 text-lg flex items-center group"

@@ -1,4 +1,5 @@
 import { Sparkles, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 // Component: Call To Action Section
 const CallToActionSection = () => {
@@ -11,12 +12,13 @@ const CallToActionSection = () => {
             Join our beta program and be among the first to experience the future of education with MENTOR AI. Help us shape the platform and get exclusive early access benefits.
           </p>
           <div className="mt-10">
-            <a
-              href="/register" // Replace with your actual sign-up link or form
-              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold px-10 py-4 rounded-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 text-lg inline-flex items-center"
+            <Link
+              href="/sign-up"
+              className="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
             >
-              Start Your Learning Journey <ArrowRight className="ml-3 h-6 w-6" />
-            </a>
+              Get Started Now
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
           </div>
           <p className="mt-6 text-sm text-gray-400">Limited spots available. Don't miss out!</p>
         </div>
