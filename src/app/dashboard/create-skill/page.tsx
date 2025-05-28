@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import DashLayout from "@/layout/DashLayout";
 import { useRoadmap } from "@/hooks/generateRoadmap";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { skills, users } from "@/lib/db/schema";
 import { db } from "@/lib/db";
 import { useUserStore } from "@/store/userStore";
@@ -63,7 +63,9 @@ const dummyMCQs = [
 ];
 
 export default function NewSkillPage() {
-  const [skillInput, setSkillInput] = useState("");
+  const searchParams = useSearchParams();
+  const skillFromUrl = searchParams.get('skill');
+  const [skillInput, setSkillInput] = useState(skillFromUrl || "");
   const [pageState, setPageState] = useState("input"); // 'input', 'mcq', 'game_generation', 'game_ready'
   const [isLoading, setIsLoading] = useState(false);
   const [selectedAnswers, setSelectedAnswers] = useState<
