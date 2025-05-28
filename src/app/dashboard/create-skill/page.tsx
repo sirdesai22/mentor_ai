@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import {
   LayoutDashboard,
   BookOpen,
@@ -62,7 +62,7 @@ const dummyMCQs = [
   },
 ];
 
-export default function NewSkillPage() {
+function CreateSkillContent() {
   const searchParams = useSearchParams();
   const skillFromUrl = searchParams.get('skill');
   const [skillInput, setSkillInput] = useState(skillFromUrl || "");
@@ -308,5 +308,19 @@ export default function NewSkillPage() {
     <div className="flex-1 overflow-y-auto p-6 md:p-8 lg:p-10 bg-gray-900">
       <div className="max-w-7xl mx-auto">{renderContent()}</div>
     </div>
+  );
+}
+
+export default function NewSkillPage() {
+  return (
+    <Suspense fallback={<div className="flex-1 overflow-y-auto p-6 md:p-8 lg:p-10 bg-gray-900">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex justify-center items-center h-[50vh]">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+        </div>
+      </div>
+    </div>}>
+      <CreateSkillContent />
+    </Suspense>
   );
 }
