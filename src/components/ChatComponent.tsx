@@ -2,7 +2,7 @@ import ChatUI from "@/hooks/chat_webllm";
 import { MLCEngine } from "@mlc-ai/web-llm";
 import { MessageSquare, HelpCircle, Send } from "lucide-react";
 import { Loader2 } from "lucide-react";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 type Props = {
   skill: any;
@@ -22,21 +22,40 @@ export const ChatComponent = ({ skill, level }: Props) => {
   const [chat_ui] = useState(new ChatUI(new MLCEngine()));
 
   const updateMessage = (kind: string, text: string, append: boolean) => {
-    setMessages([...messages, { kind: "right", text: prompt }]);
     if (kind == "init") {
-      text = "[System Initalize] " + text;
-      console.log("System Initalize", text);
+      text = "[System Initialize] " + text;
+      console.log("System Initialize", text);
     }
-    const msgCopy = [...messages];
-    if (msgCopy.length == 0 || append) {
-      setMessages([...msgCopy, { kind, text }]);
-      console.log("append", msgCopy);
-    } else {
-      msgCopy[msgCopy.length - 1] = { kind, text };
-      setMessages([...msgCopy]);
-      console.log("not append", msgCopy);
-    }
+    
+    setMessages(prevMessages => {
+      const msgCopy = [...prevMessages];
+      if (msgCopy.length == 0 || append) {
+        return [...msgCopy, { kind, text }];
+      } else {
+        msgCopy[msgCopy.length - 1] = { kind, text };
+        return [...msgCopy];
+      }
+    });
   };
+
+
+  const handleSendMessage = () => {
+    if (!prompt.trim()) return;
+    const userMessage = { kind: "right", text: prompt };
+    setMessages(prev => [...prev, userMessage]);
+    const contextualPrompt = `Please provide a concise response in exactly 200 words or less. ${prompt}`;
+    chat_ui
+      .onGenerate(contextualPrompt, updateMessage, setRuntimeStats)
+      .catch((error) => console.log(error));
+    setPrompt("");
+  };
+
+//scroll to bottom
+useEffect(() => {
+  if (chatContainerRef.current) {
+    chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+  }
+}, [messages]);
 
   return (
     <aside className="w-full md:w-96 lg:w-[420px] bg-gray-800 border-l border-gray-700 flex flex-col flex-shrink-0 max-h-full">
@@ -91,7 +110,12 @@ export const ChatComponent = ({ skill, level }: Props) => {
               {skill.roadMap[0].suggestedQuestions.map((q: any, i: any) => (
                 <button
                   key={i}
-                  onClick={() => setPrompt(q)}
+                  onClick={() => {
+                    const contextualPrompt = `Please provide a concise response in exactly 200 words or less. ${q}`;
+                    chat_ui
+                      .onGenerate(contextualPrompt, updateMessage, setRuntimeStats)
+                      .catch((error) => console.log(error));
+                  }}
                   className="w-full text-left text-xs p-2 bg-gray-700 hover:bg-gray-600 rounded-md text-blue-300 transition-colors flex items-center"
                   disabled={isAiTyping}
                 >
@@ -111,20 +135,14 @@ export const ChatComponent = ({ skill, level }: Props) => {
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={(event) => {
               if (event.key === "Enter") {
-                chat_ui
-                  .onGenerate(prompt, updateMessage, setRuntimeStats)
-                  .catch((error) => console.log(error));
+                handleSendMessage();
               }
             }}
             placeholder="Ask AI anything about the lesson..."
             className="flex-1 p-2.5 bg-gray-700 border border-gray-600 rounded-lg placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
           />
           <button
-            onClick={() => {
-              chat_ui
-                .onGenerate(prompt, updateMessage, setRuntimeStats)
-                .catch((error) => console.log(error));
-            }}
+            onClick={handleSendMessage}
             className="p-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg disabled:opacity-50"
             disabled={!prompt.trim()}
           >
@@ -135,47 +153,3 @@ export const ChatComponent = ({ skill, level }: Props) => {
     </aside>
   );
 };
-
-
-
-
-
-
-
-// Scroll chat to bottom
-//   useEffect(() => {
-//     if (chatContainerRef.current) {
-//       chatContainerRef.current.scrollTop =
-//         chatContainerRef.current.scrollHeight;
-//     }
-//   }, [chatMessages]);
-
-//   const handleSendMessage = () => {
-//     if (!chatInput.trim()) return;
-//     const newMessages: ChatMessage[] = [
-//       ...chatMessages,
-//       { sender: "user" as const, text: chatInput },
-//     ];
-//     setChatMessages(newMessages);
-//     setChatInput("");
-//     setIsAiTyping(true);
-
-//     // Simulate AI response
-//     setTimeout(() => {
-//       setIsAiTyping(false);
-//       setChatMessages((prev) => [
-//         ...prev,
-//         {
-//           sender: "ai" as const,
-//           text: `I've received your question about "${chatInput.substring(
-//             0,
-//             20
-//           )}...". Let me explain that... (AI response placeholder)`,
-//         },
-//       ]);
-//     }, 1500 + Math.random() * 1000);
-//   };
-
-//   const handleSuggestedQuestion = (question: string) => {
-//     setChatInput(question);
-//   };
