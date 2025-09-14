@@ -12,6 +12,12 @@ Mentor AI is an AI-powered educational platform that helps you learn anything—
 - 🧠 **AI-Generated Content**  
   Lessons, summaries, quizzes, and examples are generated using Gen AI in real time.
 
+- 🤖 **In-Browser AI Chat**  
+  Powered by WebLLM with TinyLlama model running directly in your browser - no external API calls needed for instant AI assistance.
+
+- 💬 **Real-Time AI Instructor**  
+  Get instant, contextual help with 200-word focused responses during your learning sessions.
+
 - 🔗 **Smart Resource Mapping**  
   Links every topic to handpicked YouTube videos, blogs, documentation, and MOOC platforms.
 
@@ -32,19 +38,22 @@ Mentor AI is an AI-powered educational platform that helps you learn anything—
 2. **Pick a Topic** you want to learn (e.g., Web Development, Machine Learning).
 3. **Answer a Few Questions** about your current level, goals, learning style, and available time.
 4. **Get Your Roadmap** with tasks broken down into Levels → Subtopics → Microtasks.
-5. **Start Learning!** Use AI-generated tasks, complete quizzes, explore mapped resources, and track your progress.
+5. **Start Learning!** Use AI-generated tasks, complete quizzes, explore mapped resources, and chat with your AI instructor.
+6. **Get Instant Help** with the in-browser AI chat that provides focused, 200-word responses without any external API calls.
 
 ---
 
 ## 🛠 Tech Stack
 
-- **Frontend**: React / React Native (Web & Mobile)
-- **Backend**: Node.js / Express or Go
-- **Database**: MongoDB / PostgreSQL
-- **AI Integration**: OpenAI API (GPT-4/4o)
-- **Auth**: Firebase / OAuth
-- **Calendar Sync**: Google Calendar API
-- **Deployment**: Vercel / Render / Firebase Hosting
+- **Frontend**: Next.js 14 with TypeScript
+- **UI Components**: Tailwind CSS with Lucide React icons
+- **Database**: Drizzle ORM with PostgreSQL
+- **AI Integration**: 
+  - **WebLLM**: In-browser AI with TinyLlama-1.1B model
+  - **MLC Engine**: Local model execution for privacy
+- **Authentication**: NextAuth.js and Clerk
+- **State Management**: Zustand stores
+- **Deployment**: Vercel
 
 ---
 
@@ -57,6 +66,19 @@ Mentor AI is an AI-powered educational platform that helps you learn anything—
 ![Dashboard Screenshot](./public/ss3.png)
 
 ![Dashboard Screenshot](./public/ss4.png)
+
+---
+
+## 🤖 WebLLM Integration
+
+Mentor AI leverages **WebLLM** to bring AI capabilities directly to your browser:
+
+- **Local Processing**: AI runs entirely in your browser using the TinyLlama-1.1B model
+- **No API Costs**: Zero external API calls means no usage fees or rate limits
+- **Privacy First**: Your questions and data never leave your device
+- **Instant Responses**: No network latency - get immediate AI assistance
+- **Offline Capable**: Works even without internet connection once the model is loaded
+- **Focused Responses**: AI provides concise, 200-word responses perfect for learning
 
 ---
 
