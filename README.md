@@ -4,6 +4,10 @@ Mentor AI is an AI-powered educational platform that helps you learn anything—
 
 ---
 
+**Watch the demo:**
+
+[![Watch the MentorAI demo](https://img.youtube.com/vi/ZjEsVJy-zkw/maxresdefault.jpg)](https://youtu.be/ZjEsVJy-zkw)
+
 ## ✨ Features
 
 - ✅ **Personalized Learning Path**  
